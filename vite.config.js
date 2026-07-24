@@ -17,7 +17,14 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        host: '0.0.0.0', // Разрешает Vite слушать подключения вне контейнера
+        port: 5173,
+        hmr: {
+            host: 'localhost', // Браузер на ПК будет запрашивать обновления с localhost
+        },
         watch: {
+            usePolling: true, // Гарантирует, что Vite мгновенно увидит изменения файлов в Docker
+            interval: 100, // Проверять файлы каждые 100мс (снижает нагрузку на CPU)
             ignored: ['**/storage/framework/views/**'],
         },
     },
