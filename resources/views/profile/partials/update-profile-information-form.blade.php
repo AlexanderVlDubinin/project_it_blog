@@ -47,6 +47,11 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="name" :value="__('Role')" />
+            <x-text-input disabled id="name" name="name" type="text" class="mt-1 block w-full border-none dark:text-gray-400" value="{{ ucfirst($user->role->value) }}" autocomplete="name" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
