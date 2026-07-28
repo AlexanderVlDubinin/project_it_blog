@@ -1,6 +1,6 @@
 FROM php:8.4-fpm-alpine
 
-# Установка системных зависимостей (добавлены библиотеки для GD)
+# Установка системных зависимостей (добавлены библиотеки для GD и icu-dev для intl)
 RUN apk add --no-cache \
     bash \
     curl \
@@ -14,11 +14,13 @@ RUN apk add --no-cache \
     freetype-dev \
     libpng-dev \
     libjpeg-turbo-dev \
+    icu-dev \
     $PHPIZE_DEPS # Добавлено для сборки phpredis
 
-# Установка PHP расширений (включая pdo_pgsql для PostgreSQL) (добавлено конфигурирование и установка gd)
+# Установка PHP расширений (включая pdo_pgsql для PostgreSQL и intl для Filament) (добавлено конфигурирование и установка gd)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_pgsql mbstring bcmath zip ctype gd
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install pdo pdo_pgsql mbstring bcmath zip ctype gd intl
 
 # Установка расширения phpredis через pecl
 RUN pecl install redis && docker-php-ext-enable redis
