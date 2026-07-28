@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -31,6 +32,12 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Indigo, // Amber
                 'gray' => Color::Gray,
+            ])
+            ->navigationItems([
+                NavigationItem::make('Go to the website')
+                    ->url('/', shouldOpenInNewTab: true) // Opens the frontend in a new browser tab
+                    ->icon('heroicon-o-arrow-top-right-on-square') // The arrow icon from the Heroicons set
+                    ->sort(-1), // Displays this item at the very top of the menu, above all CRUD resources
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
