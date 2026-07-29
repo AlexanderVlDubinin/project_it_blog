@@ -2,18 +2,28 @@
 
 namespace App\Policies;
 
+use App\Enum\UserRole;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class PostPolicy
 {
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        return null; // Передает управление методам ниже для остальных ролей
+    }
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +31,7 @@ class PostPolicy
      */
     public function view(User $user, Post $post): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +39,7 @@ class PostPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return in_array($user->role, [UserRole::MODERATOR, UserRole::AUTHOR]);
     }
 
     /**
@@ -37,7 +47,7 @@ class PostPolicy
      */
     public function update(User $user, Post $post): bool
     {
-        return false;
+        return $post->user_id === $user->id || $user->role === UserRole::MODERATOR;
     }
 
     /**
@@ -45,7 +55,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
-        return false;
+        return $post->user_id === $user->id || $user->role === UserRole::MODERATOR;
     }
 
     /**
@@ -53,7 +63,7 @@ class PostPolicy
      */
     public function restore(User $user, Post $post): bool
     {
-        return false;
+        return $user->role === UserRole::MODERATOR;
     }
 
     /**
@@ -61,6 +71,6 @@ class PostPolicy
      */
     public function forceDelete(User $user, Post $post): bool
     {
-        return false;
+        return $user->role === UserRole::MODERATOR;
     }
 }
