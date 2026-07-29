@@ -22,3 +22,9 @@
     --color-input: oklch(0.24 0 0);
     --color-muted-foreground: oklch(0.6 0 0);
 }
+
+@utility error {
+    color: var(--color-red-500); /* Или @apply text-red-500; */
+    font-size: var(--text-sm);
+    margin-top: --spacing(1);
+}
