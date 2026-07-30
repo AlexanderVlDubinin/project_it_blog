@@ -110,7 +110,7 @@
                             </div>
                             <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400">
                                 <i>
-                                    <b>Published on: </b>
+                                    <b>Created at: </b>
                                     {{ $post->created_at->format('Y-m-d H:i:s') }} ({{ $post->created_at->diffForHumans() }})
                                 </i>
                             </div>

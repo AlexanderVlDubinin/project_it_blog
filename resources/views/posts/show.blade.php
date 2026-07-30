@@ -21,11 +21,11 @@
             </h1>
 
             <div class="mt-4 w-full gap-4 text-gray-600 dark:text-gray-400">
-                <b>Authored by</b>
+                <b>Authored by: </b>
                 <i>{{ $post->user->name }} ({{ $post->user->email }})</i>
             </div>
             <div class="w-full gap-4 text-gray-600 dark:text-gray-400">
-                <b>Published on</b>
+                <b>Created at: </b>
                 <i>{{ $post->created_at->format('Y-m-d H:i:s') }}</i>
                 (<i>{{ $post->created_at->diffForHumans() }}</i>)
             </div>
