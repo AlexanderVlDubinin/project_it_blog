@@ -25,6 +25,7 @@ class PublishedPaginatedPosts
 
             })
             ->with('user')
+            ->withCount('comments')
             ->orderByDesc('created_at')
             ->orderBy('id')
             ->paginate($limit)

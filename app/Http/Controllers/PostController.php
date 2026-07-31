@@ -66,6 +66,13 @@ class PostController extends Controller
     {
         $this->authorize('view', $post);
 
+        // Loading the post and recursively only the ROOT comments along with their authors
+        $post->load([
+            'comments' => function ($query) {
+                $query->whereNull('parent_id')->with(['user', 'allChildren'])->orderBy('created_at', 'desc');
+            }
+        ]);
+
         return view('posts.show', [
             'post' => $post
         ]);

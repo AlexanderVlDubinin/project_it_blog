@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CommentModerationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +31,15 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
     });
     */
+
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+
+    Route::middleware('role:admin,moderator')->prefix('admin')->name('admin.')->group(function () {
+        Route::put('/comments/{comment}/delete', [CommentController::class, 'delete'])->name('comments.delete');
+        Route::put('/comments/{comment}/restore', [CommentController::class, 'restore'])->name('comments.restore');
+        Route::delete('/comments/{comment}/destroy', [CommentController::class, 'forceDelete'])->name('comments.destroy');
+    });
 });
 
 require __DIR__.'/auth.php';

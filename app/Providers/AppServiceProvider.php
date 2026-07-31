@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Enum\UserRole;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
@@ -26,10 +28,12 @@ class AppServiceProvider extends ServiceProvider
         Model::shouldBeStrict();
         Model::automaticallyEagerLoadRelationships();
 
-        /*
-        Gate::define('manage-posts', function (User $user) {
-            return $user->role === 'admin' || $user->role === 'moderator';
+        Gate::define('manage-site', function (User $user) {
+            return $user->role === UserRole::ADMIN || $user->role === UserRole::MODERATOR;
         });
-        */
+
+        Gate::define('owner-action', function (User $user, Post $post) {
+            return $user->id === $post->user_id;
+        });
     }
 }
