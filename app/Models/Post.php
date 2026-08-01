@@ -33,4 +33,9 @@ class Post extends Model
     {
         return $this->image ? asset('storage/' . $this->image) : null;
     }
+
+    public function getTotalCommentsCountAttribute(): int
+    {
+        return $this->comments()->count();
+    }
 }

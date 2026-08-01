@@ -44,8 +44,8 @@
             <hr class="mt-8"/>
 
             {{-- COMMENTS --}}
-            <div class="comments-section my-4">
-                <h3>Comments ({{ $post->comments->count() }})</h3>
+            <div id="comments_section_start" class="comments-section my-4">
+                <h3>Comments ({{ $post->total_comments_count }})</h3>
 
                 <div class="mt-4 main-comment-form-container border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-800 rounded-lg px-4 py-2 h-full flex flex-col justify-between" >
                     <!-- Dynamic form header -->
@@ -92,9 +92,9 @@
                 <hr class="my-8"/>
 
                 <!-- Tree output -->
-                @if($post->comments->count() > 0)
+                @if($comments->count() > 0)
                     <div class="comments-tree">
-                        @foreach($post->comments as $comment)
+                        @foreach($comments as $comment)
                             @include('partials.comment_item', ['comment' => $comment])
                         @endforeach
 
@@ -222,6 +222,13 @@
                             textarea.focus();
                         }
                     </script>
+
+                    {{-- Pagination --}}
+                    @if($comments->hasPages())
+                        <div class="custom-pagination mt-6 flex justify-center">
+                            {{ $comments->links() }}
+                        </div>
+                    @endif
                 @else
                     <h2 class="text-4xl font-bold text-indigo-600 flex item-center">
                         No comments yet.

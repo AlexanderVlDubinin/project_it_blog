@@ -100,7 +100,7 @@
                                 <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400">
                                     <i>
                                         <b>Comments: </b>
-                                        {{ $post->comments_count }}
+                                        {{ $post->total_comments_count }}
                                     </i>
                                 </div>
                             @endif

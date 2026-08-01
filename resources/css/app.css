@@ -28,3 +28,7 @@
     font-size: var(--text-sm);
     margin-top: --spacing(1);
 }
+
+html {
+    scroll-behavior: smooth;
+}

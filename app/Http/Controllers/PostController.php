@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\LoadPostComments;
 use App\Actions\PublishedPaginatedPosts;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
@@ -62,19 +63,15 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show(Post $post, LoadPostComments $loadPostComments)
     {
         $this->authorize('view', $post);
 
-        // Loading the post and recursively only the ROOT comments along with their authors
-        $post->load([
-            'comments' => function ($query) {
-                $query->whereNull('parent_id')->with(['user', 'allChildren'])->orderBy('created_at', 'desc');
-            }
-        ]);
+        $comments = $loadPostComments($post);
 
         return view('posts.show', [
-            'post' => $post
+            'post' => $post,
+            'comments' => $comments,
         ]);
     }
 
