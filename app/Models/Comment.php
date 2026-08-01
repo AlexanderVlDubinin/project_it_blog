@@ -60,7 +60,9 @@ class Comment extends Model
     // Basic connections
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id')->withDefault([
+            'name' => 'Anonymous', // This will automatically substitute "Anonymous" on the frontend of the site with user_id=NULL.
+        ]);
     }
 
     public function post(): BelongsTo

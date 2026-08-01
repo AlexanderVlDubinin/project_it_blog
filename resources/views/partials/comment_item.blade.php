@@ -5,7 +5,7 @@
             <div>
                 <!-- user?->name will return "Anonymous" if the user is deleted from the database -->
                 <strong class="{{ $comment->is_deleted ? 'text-gray-600 dark:text-gray-400' : 'text-indigo-400' }}">
-                    {{ $comment->user?->name ?? 'Anonymous' }} {{-- $comment->is_deleted ? 'Moderator' --}}
+                    {{ $comment->user?->name }} {{-- $comment->is_deleted ? 'Moderator' --}}
                 </strong>
                 <small class="text-gray-600 dark:text-gray-400">
                     {{ $comment->created_at->format('Y-m-d H:i:s') }} ({{ $comment->created_at->diffForHumans() }})
@@ -26,7 +26,7 @@
                     @else
                         <button
                             type="button"
-                            onclick="prepareReply({{ $comment->id }}, '{{ $comment->user?->name ?? 'Anonymous' }}')"
+                            onclick="prepareReply({{ $comment->id }}, '{{ $comment->user?->name }}')"
                             class="btn-link border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-700 rounded-lg px-2 py-0.5 cursor-pointer"
                         >
                             Reply
