@@ -5,30 +5,83 @@
                 {{ __('List of Posts') }}
             </h2>
 
-            <a href="{{ route('posts.create') }}">
-                <button class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-indigo-500 rounded-lg px-4 py-2 button-back cursor-pointer">
-                    <span>New Post</span>
-                </button>
-            </a>
+            @can('can-be-author')
+                <a href="{{ route('posts.create') }}">
+                    <button class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-indigo-500 rounded-lg px-4 py-2 button-back cursor-pointer">
+                        <span>New Post</span>
+                    </button>
+                </a>
+            @endcan
         </div>
     </x-slot>
 
     <div class="py-12 text-gray-800 dark:text-gray-200">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <form action="{{ route('posts.index') }}" method="GET" class="flex w-full gap-2">
-                <input
-                    type="text"
-                    name="q"
-                    value="{{ request('q') }}"
-                    placeholder="Search (ID, title, content)"
-                    class="flex-1 border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2">
-                <button type="submit" class="border border-border border-gray-700 dark:border-gray-300 rounded-lg px-4 py-2 button-back">Search</button>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Search by</label>
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ request('q') }}"
+                            placeholder="ID, title, content"
+                            class="flex-1 border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2">
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Author</label>
+                        <select name="user_id" class="w-full border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm h-9.5">
+                            <option value="">All Authors</option>
+                            @foreach($authors as $author)
+                                <option value="{{ $author->id }}" {{ request('user_id') == $author->id ? 'selected' : '' }}>
+                                    {{ $author->name }} ({{ $author->email }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Date from</label>
+                        <input
+                            type="date"
+                            name="date_from"
+                            value="{{ request('date_from') }}"
+                            placeholder="Select date from..."
+                            class="w-full border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm">
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Date to</label>
+                        <input
+                            type="date"
+                            name="date_to"
+                            value="{{ request('date_to') }}"
+                            placeholder="Select date to..."
+                            class="w-full border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm">
+
+                        @error('date_to')
+                        <span class="text-xs text-red-500 mt-0.5">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="{{ request()->hasAny(['user_id']) }} flex gap-2 justify-end">
+                    @if(request()->filled('q') || request()->filled('user_id') || request()->filled('date_from') || request()->filled('date_to')/*request()->hasAny(['q', 'user_id', 'date_from', 'date_to'])*/)
+                        <a href="{{ route('posts.index') }}"
+                           class="border border-red-500 text-red-500 rounded-lg px-4 py-2 text-sm font-medium hover:bg-red-50 dark:hover:bg-gray-800 flex items-center transition-colors cursor-pointer">
+                            Reset
+                        </a>
+                    @endif
+
+                    <button type="submit" class="border border-border border-gray-700 dark:border-gray-300 rounded-lg px-4 py-2 button-back cursor-pointer">Search</button>
+                </div>
             </form>
 
             <div class="grid grid-cols-2">
                 @forelse ($posts as $post)
                     <div class="p-2">
-                        <div class="mt-4 border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-800 rounded-lg px-4 py-2 h-full flex flex-col justify-between">
+                        <div class="mt-4 border border-border {{ $post->is_published ? 'border-gray-700 dark:border-gray-300' : 'border-red-500' }} bg-white dark:bg-gray-800 rounded-lg px-4 py-2 h-full flex flex-col justify-between">
                             <div>
                                 <div class="flex items-center justify-between w-full items-start">
                                     <h2 class="mt-6 text-head text-indigo-400 font-bold text-4xl underline">

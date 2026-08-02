@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\CommentController;
-use App\Http\Controllers\CommentModerationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -19,26 +18,28 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('posts', PostController::class)->middleware('verified');
-    /*
-    Route::prefix('posts')->name('posts.')->group(function () {
-        Route::get('/', [PostController::class, 'index'])->name('index');
-        Route::get('/create', [PostController::class, 'create'])->name('create');
-        Route::get('/{post}', [PostController::class, 'show'])->name('show');
-        Route::get('/{post}/edit', [PostController::class, 'edit'])->name('edit');
-        Route::post('/', [PostController::class, 'store'])->name('store');
-        Route::patch('/{post}', [PostController::class, 'update'])->name('update');
-        Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
-    });
-    */
+    Route::middleware('verified')->group(function () {
+        Route::resource('posts', PostController::class)->middleware('verified');
+        /*
+        Route::prefix('posts')->name('posts.')->group(function () {
+            Route::get('/', [PostController::class, 'index'])->name('index');
+            Route::get('/create', [PostController::class, 'create'])->name('create');
+            Route::get('/{post}', [PostController::class, 'show'])->name('show');
+            Route::get('/{post}/edit', [PostController::class, 'edit'])->name('edit');
+            Route::post('/', [PostController::class, 'store'])->name('store');
+            Route::patch('/{post}', [PostController::class, 'update'])->name('update');
+            Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
+        });
+        */
 
-    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
-    Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+        Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+        Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
 
-    Route::middleware('role:admin,moderator')->prefix('admin')->name('admin.')->group(function () {
-        Route::put('/comments/{comment}/delete', [CommentController::class, 'delete'])->name('comments.delete');
-        Route::put('/comments/{comment}/restore', [CommentController::class, 'restore'])->name('comments.restore');
-        Route::delete('/comments/{comment}/destroy', [CommentController::class, 'forceDelete'])->name('comments.destroy');
+        Route::middleware('role:admin,moderator')->prefix('admin')->name('admin.')->group(function () {
+            Route::put('/comments/{comment}/delete', [CommentController::class, 'delete'])->name('comments.delete');
+            Route::put('/comments/{comment}/restore', [CommentController::class, 'restore'])->name('comments.restore');
+            Route::delete('/comments/{comment}/destroy', [CommentController::class, 'forceDelete'])->name('comments.destroy');
+        });
     });
 });
 

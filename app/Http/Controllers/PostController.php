@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\LoadPostComments;
 use App\Actions\PublishedPaginatedPosts;
+use App\Http\Requests\DateFiltersRequest;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
@@ -22,16 +23,17 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, PublishedPaginatedPosts $publishedPaginatedPosts)
+    public function index(DateFiltersRequest $request, PublishedPaginatedPosts $publishedPaginatedPosts)
     {
         $this->authorize('viewAny', Post::class);
 
-        $search = trim((string) $request->input('q'));
-
-        $posts = $publishedPaginatedPosts($search, 6);
+        $results = $publishedPaginatedPosts($request->validated(), 6);
+        $posts = $results['posts'];
+        $authors = $results['authors'];
 
         return view('posts.index', [
-            'posts' => $posts
+            'posts' => $posts,
+            'authors' => $authors
         ]);
     }
 
