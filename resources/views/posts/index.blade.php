@@ -18,7 +18,7 @@
     <div class="py-12 text-gray-800 dark:text-gray-200">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <form action="{{ route('posts.index') }}" method="GET" class="flex w-full gap-2">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full items-start">
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Search by</label>
                         <input
@@ -26,7 +26,11 @@
                             name="q"
                             value="{{ request('q') }}"
                             placeholder="ID, title, content"
-                            class="flex-1 border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2">
+                            class="w-full border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2 h-9.5">
+
+                        @error('q')
+                        <span class="text-xs text-red-500 mt-0.5">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="flex flex-col gap-1">
@@ -39,6 +43,10 @@
                                 </option>
                             @endforeach
                         </select>
+
+                        @error('user_id')
+                        <span class="text-xs text-red-500 mt-0.5">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="flex flex-col gap-1">
@@ -49,6 +57,10 @@
                             value="{{ request('date_from') }}"
                             placeholder="Select date from..."
                             class="w-full border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm">
+
+                        @error('date_from')
+                        <span class="text-xs text-red-500 mt-0.5">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="flex flex-col gap-1">
