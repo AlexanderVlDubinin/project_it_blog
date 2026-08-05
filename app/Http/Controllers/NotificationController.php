@@ -2,55 +2,39 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\DeleteReadNotifications;
+use App\Actions\GetDataForNotifications;
+use App\Actions\MarkNotificationsAsRead;
+use App\Actions\UpdateNotificationSettings;
+use App\Http\Requests\UpdateNotificationSettingsRequest;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    public function index()
+    public function index(GetDataForNotifications $getDataForNotifications)
     {
-        $user = auth()->user();
-
-        $notifications = $user->notifications()->paginate(15);
-
-        $notifications_ttl_days = [
-            0 => 'Never',
-            1 => '1 day',
-            7 => '1 week',
-            14 => '2 weeks',
-            30 => '1 month',
-            90 => '3 months',
-        ];
+        $notificationsData = $getDataForNotifications();
 
         return view('notifications.index', [
-            'notifications' => $notifications,
-            'notifications_ttl_days' => $notifications_ttl_days,
+            'notifications' => $notificationsData['notifications'],
+            'notifications_ttl_days' => $notificationsData['notifications_ttl_days'],
         ]);
     }
 
-    public function updateSettings(Request $request)
-    {
-        $validated = $request->validate([
-            'notifications_ttl_days' => 'required|integer|in:0,1,7,14,30,90',
-        ]);
-
-        // Update field in database
-        auth()->user()->update([
-            'notifications_ttl_days' => $validated['notifications_ttl_days']
-        ]);
+    public function updateSettings(
+        UpdateNotificationSettingsRequest $request,
+        UpdateNotificationSettings $updateNotificationSettings,
+    ) {
+        $updateNotificationSettings($request->validated());
 
         return back()->with('success', 'Notification settings have been updated successfully.');
     }
 
-    public function readAndRedirect($id)
+    public function readAndRedirect($id, MarkNotificationsAsRead $markNotificationsAsRead)
     {
-        $notification = auth()->user()->notifications()->findOrFail($id);
-
-        // Mark it as read
-        $notification->markAsRead();
+        $data = $markNotificationsAsRead($id);
 
         // Smart redirect depending on the type of data
-        $data = $notification->data['data'] ?? [];
-
         // If this is a response to a comment, send it to a post with an anchor to the comment.
         if (isset($data['type']) && $data['type'] === 'comment_reply') {
             return redirect('/posts/' . $data['post_id'] . '#comment-' . $data['comment_id']);
@@ -60,20 +44,17 @@ class NotificationController extends Controller
         return redirect()->route('notifications.index')->with('success', 'The notification has been read');
     }
 
-    public function markAllAsRead(Request $request)
+    public function markAllAsRead(Request $request, MarkNotificationsAsRead $markNotificationsAsRead)
     {
-        // A collection of unread notifications and a call to the markAsRead() method
-        auth()->user()->unreadNotifications->markAsRead();
+        $markNotificationsAsRead();
 
         // Returning the user back with an alert about a successful action
         return back()->with('success', 'All notifications are marked as read.');
     }
 
-    public function deleteAllRead()
+    public function deleteAllRead(DeleteReadNotifications $deleteReadNotifications)
     {
-        $user = auth()->user();
-
-        $user->notifications()->whereNotNull('read_at')->delete();
+        $deleteReadNotifications();
 
         return back()->with('success', 'All read notifications have been deleted.');
     }
