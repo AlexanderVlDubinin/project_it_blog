@@ -6,6 +6,22 @@
             </h2>
 
             <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2 px-3 py-0.5 border border-gray-500 rounded-lg shadow-sm">
+                    <label for="ttl" class="text-sm text-gray-200 font-medium whitespace-nowrap mt-1">Delete notifications you read via: </label>
+
+                    <form action="{{ route('notifications.updateSettings') }}" method="POST" class="m-0">
+                        @csrf
+                        <select id="ttl" name="notifications_ttl_days" onchange="this.form.submit()"
+                                class="w-full border border-none text-white bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm pr-8 cursor-pointer">
+                            @foreach($notifications_ttl_days as $days => $label)
+                                <option value="{{ $days }}" {{ auth()->user()->notifications_ttl_days == $days ? 'selected' : '' }} class="w-full">
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                </div>
+
                 @if(auth()->user()->unreadNotifications()->exists())
                     <form action="{{ route('notifications.markAllAsRead') }}" method="POST" class="ml-4">
                         @csrf

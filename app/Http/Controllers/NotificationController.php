@@ -12,9 +12,33 @@ class NotificationController extends Controller
 
         $notifications = $user->notifications()->paginate(15);
 
+        $notifications_ttl_days = [
+            0 => 'Never',
+            1 => '1 day',
+            7 => '1 week',
+            14 => '2 weeks',
+            30 => '1 month',
+            90 => '3 months',
+        ];
+
         return view('notifications.index', [
             'notifications' => $notifications,
+            'notifications_ttl_days' => $notifications_ttl_days,
         ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'notifications_ttl_days' => 'required|integer|in:0,1,7,14,30,90',
+        ]);
+
+        // Update field in database
+        auth()->user()->update([
+            'notifications_ttl_days' => $validated['notifications_ttl_days']
+        ]);
+
+        return back()->with('success', 'Notification settings have been updated successfully.');
     }
 
     public function readAndRedirect($id)
