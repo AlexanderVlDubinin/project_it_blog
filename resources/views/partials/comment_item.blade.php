@@ -1,4 +1,4 @@
-<div class="comment-card {{ $comment->is_deleted ? 'deleted-muted' : '' }} mt-4 mb-4 {{ $comment->parent_id ? 'ml-7.5' : '' }} border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-800 rounded-lg px-4 py-2 h-full flex flex-col justify-between">
+<div id="comment-{{ $comment->id }}" class="comment-card {{ $comment->is_deleted ? 'deleted-muted' : '' }} mt-4 mb-4 {{ $comment->parent_id ? 'ml-7.5' : '' }} border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-800 rounded-lg px-4 py-2 h-full flex flex-col justify-between">
 
     <div class="comment-header">
         <div class="flex items-center justify-between w-full">
