@@ -7,7 +7,7 @@
 
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-2 px-3 py-0.5 border border-gray-500 rounded-lg shadow-sm">
-                    <label for="ttl" class="text-sm text-gray-200 font-medium whitespace-nowrap mt-1">Delete notifications you read via: </label>
+                    <label for="ttl" class="text-sm text-gray-200 font-medium whitespace-nowrap mt-1">Delete notifications you read after: </label>
 
                     <form action="{{ route('notifications.updateSettings') }}" method="POST" class="m-0">
                         @csrf
@@ -15,6 +15,23 @@
                                 class="w-full border border-none text-white bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm pr-8 cursor-pointer">
                             @foreach($notifications_ttl_days as $days => $label)
                                 <option value="{{ $days }}" {{ auth()->user()->notifications_ttl_days == $days ? 'selected' : '' }} class="w-full">
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                </div>
+
+                <div class="flex items-center space-x-2 px-3 py-0.5 border border-gray-500 rounded-lg shadow-sm ml-4">
+                    <label for="ttl" class="text-sm text-gray-200 font-medium whitespace-nowrap mt-1">Select type: </label>
+
+                    <form action="{{ route('notifications.index') }}" method="GET" class="m-0">
+                        @csrf
+                        <select id="notification_type"  name="notification_type" onchange="this.form.submit()"
+                                class="{{ request('notification_type') }} w-full border border-none text-white bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm pr-8 cursor-pointer">
+                            <option value="" {{ !request('notification_type') ? 'selected' : '' }}>All notifications</option>
+                            @foreach($notification_types as $value => $label)
+                                <option value="{{ $value }}" {{ request('notification_type') === $value ? 'selected' : '' }} class="w-full">
                                     {{ $label }}
                                 </option>
                             @endforeach
@@ -81,7 +98,7 @@
                             @endif
 
                             <!-- Icon -->
-                            @svg($icon, 'w-6 h-6 ' . ($notification->unread() ? $colors['headerText'] : $colors['headerText'].' saturate-40'), )
+                            @svg($icon, 'w-6 h-6 ' . ($notification->unread() ? $colors['headerText'] : $colors['headerText'].' saturate-40') )
 
                             <h3 class="font-bold text-2xl {{ $notification->unread() ? $colors['headerText'] : $colors['headerText'].' saturate-40' }}">
                                 {{ $notification->data['title'] ?? 'Notification' }}

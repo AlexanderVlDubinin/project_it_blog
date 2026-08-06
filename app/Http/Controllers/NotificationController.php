@@ -6,18 +6,20 @@ use App\Actions\DeleteReadNotifications;
 use App\Actions\GetDataForNotifications;
 use App\Actions\MarkNotificationsAsRead;
 use App\Actions\UpdateNotificationSettings;
+use App\Http\Requests\NotificationsFiltersRequest;
 use App\Http\Requests\UpdateNotificationSettingsRequest;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    public function index(GetDataForNotifications $getDataForNotifications)
+    public function index(NotificationsFiltersRequest $request, GetDataForNotifications $getDataForNotifications)
     {
-        $notificationsData = $getDataForNotifications();
+        $notificationsData = $getDataForNotifications($request->validated());
 
         return view('notifications.index', [
             'notifications' => $notificationsData['notifications'],
             'notifications_ttl_days' => $notificationsData['notifications_ttl_days'],
+            'notification_types' => $notificationsData['notification_types'],
         ]);
     }
 

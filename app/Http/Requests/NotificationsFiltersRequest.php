@@ -2,19 +2,19 @@
 
 namespace App\Http\Requests;
 
-use App\Enum\OldReadNotificationTerms;
+use App\Enum\NotificationTypes;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateNotificationSettingsRequest extends FormRequest
+class NotificationsFiltersRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return (bool) auth()->user();
+        return (bool) $this->user();
     }
 
     /**
@@ -25,7 +25,7 @@ class UpdateNotificationSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'notifications_ttl_days' => ['required', Rule::enum(OldReadNotificationTerms::class)],
+            'notification_type' => ['nullable', Rule::enum(NotificationTypes::class)],
         ];
     }
 }
