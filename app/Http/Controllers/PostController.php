@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\LoadPostComments;
 use App\Actions\PublishedPaginatedPosts;
-use App\Http\Requests\DateFiltersRequest;
+use App\Http\Requests\PostFiltersRequest;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
@@ -23,7 +23,7 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(DateFiltersRequest $request, PublishedPaginatedPosts $publishedPaginatedPosts)
+    public function index(PostFiltersRequest $request, PublishedPaginatedPosts $publishedPaginatedPosts)
     {
         $this->authorize('viewAny', Post::class);
 
