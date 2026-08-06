@@ -35,5 +35,7 @@ class ViewServiceProvider extends ServiceProvider
             }
         });
         */
+
+        View::composer('filament.topbar-notifications', NavigationComposer::class);
     }
 }

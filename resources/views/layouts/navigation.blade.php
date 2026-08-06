@@ -19,6 +19,14 @@
                         </x-nav-link>
                     </div>
 
+                    @can('manage-site')
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <x-nav-link :href="route('filament.admin.pages.dashboard')" target="blank">
+                                {{ __('Admin Panel') }}
+                            </x-nav-link>
+                        </div>
+                    @endcan
+
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('posts.index')" :active="request()->routeIs('posts.index')">
                             {{ __('List of Posts') }}
@@ -41,8 +49,8 @@
                             <!-- Badge with a number (shown only if there are unread ones) -->
                             @if($unreadNotificationsCount > 0)
                                 <span class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-500 rounded-full transform translate-x-1/3 -translate-y-1/3">
-                                        {{ $unreadNotificationsCount }}
-                                    </span>
+                                    {{ $unreadNotificationsCount }}
+                                </span>
                             @endif
                         </button>
                         </a>

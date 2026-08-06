@@ -33,16 +33,25 @@
                         {{ session('success') }}
                     </span>
                 </div>
+            @endif
 
+            @if (session('error'))
+                <div id="toast-error" class="fixed top-24 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-xl shadow-lg border border-red-500/30 z-50 transition-opacity duration-1000 whitespace-nowrap">
+                    <span class="text-sm font-semibold">
+                        {{ session('error') }}
+                    </span>
+                </div>
+            @endif
+
+            @if (session('success') || session('error'))
                 <script>
-                    // Starting the smooth fade after exactly 5 seconds (5000 ms)
-                    setTimeout(() => {
-                        const toast = document.getElementById('toast-success');
-                        if (toast) {
+                    // Looking for all toasts (both success and error)
+                    document.querySelectorAll('[id^="toast-"]').forEach(toast => {
+                        setTimeout(() => {
                             toast.classList.add('opacity-0'); // Dissolving it smoothly in 1 second
                             setTimeout(() => toast.remove(), 1000); // Completely removing it from the DOM
-                        }
-                    }, 5000);
+                        }, 5000);
+                    });
                 </script>
             @endif
 
