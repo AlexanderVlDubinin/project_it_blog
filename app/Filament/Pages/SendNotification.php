@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enum\NotificationTypes;
 use App\Models\User;
 use BackedEnum;
 use Filament\Pages\Page;
@@ -77,13 +78,7 @@ class SendNotification extends Page
 
                         Select::make('notificationType')
                             ->label('Notification type ("Info" by default)')
-                            ->options([
-                                'info' => 'Info (Blue color)',
-                                'success' => 'Success (Green color)',
-                                'warning' => 'Warning (Yellow color)',
-                                'danger' => 'Danger (Red color)',
-                                //'gray' => 'Neutral (Gray color)',
-                            ])
+                            ->options(NotificationTypes::labels())
                             //->native(false) // Makes the drop-down list more beautiful (custom UI Filament)
                             ->placeholder('Select notification type'),
 
