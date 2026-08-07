@@ -41,6 +41,17 @@
             {{-- nl2br --- \n ---> <br/>, e - safe text (htmlentities) --}}
             <div class="mt-5">{!! nl2br(e($post->content)) !!}</div>
 
+            @if($post->tags->isNotEmpty())
+                <div class="flex flex-wrap gap-2 min-h-8 p-2 rounded-xl mt-5">
+                    <b class="text-gray-600 dark:text-gray-400">Tags: </b>
+                    @foreach ($post->tags as $tag)
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-semibold">
+                                            {{ $tag->name }}
+                                        </span>
+                    @endforeach
+                </div>
+            @endif
+
             <hr class="mt-8"/>
 
             {{-- COMMENTS --}}

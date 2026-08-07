@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Models\Post;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Gate;
@@ -54,7 +55,14 @@ class PublishedPaginatedPosts
                 $query->whereDate('posts.created_at', '<=', $filters['date_to']);
             })
 
-            ->with('user')
+            // 5. Filter by tad
+            ->when(!empty($filters['tag']), function ($query) use ($filters) {
+                $query->whereHas('tags', function ($q) use ($filters) {
+                    $q->where('tags.id', $filters['tag']);
+                });
+            })
+
+            ->with(['user', 'tags']) // adding both - user and tags
             ->withCount('comments')
             ->orderByDesc('created_at')
             ->orderBy('id')
@@ -71,9 +79,12 @@ class PublishedPaginatedPosts
             ->orderBy('name')
             ->get();
 
+        $tags = Tag::query()->orderBy('name')->get();
+
         return [
             'posts' => $posts,
-            'authors' => $authors
+            'authors' => $authors,
+            'tags' => $tags
         ];
     }
 }

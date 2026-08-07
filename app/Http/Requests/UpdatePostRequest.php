@@ -29,6 +29,8 @@ class UpdatePostRequest extends FormRequest
             'image' => ['nullable', 'file', 'mimes:jpeg,jpg,png,gif,webp', 'max:2048'],
             'remove_image' => ['sometimes', 'boolean'],
             'user_id' => ['required', 'integer', 'exists:users,id'],
+            'tags' => ['nullable', 'array', 'max:7'],
+            'tags.*' => ['required', 'string', 'min:2', 'max:50', 'not_regex:/[^a-zA-Z0-9\s]/'],
         ];
     }
 
@@ -41,6 +43,10 @@ class UpdatePostRequest extends FormRequest
             'content.required' => 'The content field is required.',
             'content.min' => 'The content must be at least 20 characters.',
             'image.mimes' => 'The image must be a valid image file.',
+            'tags.max' => 'You cannot select more than 7 tags for one post.',
+            'tags.*' => 'The tag name must be at least 2 characters.',
+            'tags.*.max' => 'The tag name must be at most 50 characters.',
+            'tags.*.not_regex' => 'The tag name must contain only letters, numbers, and spaces.',
         ];
     }
 

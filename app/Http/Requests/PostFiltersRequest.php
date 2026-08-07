@@ -27,6 +27,7 @@ class PostFiltersRequest extends FormRequest
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'date_from' => ['nullable', 'date'], // 'date_format:Y-m-d'
             'date_to'   => ['nullable', 'date', 'after_or_equal:date_from'], // 'date_format:Y-m-d'
+            'tag_id' => ['nullable', 'integer', 'exists:tags,id'],
         ];
     }
 

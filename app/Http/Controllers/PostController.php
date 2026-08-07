@@ -30,10 +30,12 @@ class PostController extends Controller
         $results = $publishedPaginatedPosts($request->validated(), 6);
         $posts = $results['posts'];
         $authors = $results['authors'];
+        $tags = $results['tags'];
 
         return view('posts.index', [
             'posts' => $posts,
-            'authors' => $authors
+            'authors' => $authors,
+            'tags' => $tags
         ]);
     }
 

@@ -19,7 +19,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <form action="{{ route('posts.index') }}" method="GET" class="flex w-full gap-2">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full items-start">
-                    <div class="flex flex-col gap-1">
+                    <div class="flex flex-col gap-1 md:col-span-4">
                         <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Search by</label>
                         <input
                             type="text"
@@ -29,6 +29,22 @@
                             class="w-full border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2 h-9.5">
 
                         @error('q')
+                        <span class="text-xs text-red-500 mt-0.5">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Tag</label>
+                        <select name="tag_id" class="w-full border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm h-9.5">
+                            <option value="">All Tags</option>
+                            @foreach($tags as $tag)
+                                <option value="{{ $tag->id }}" {{ request('user_id') == $tag->id ? 'selected' : '' }}>
+                                    {{ $tag->name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('tag_id')
                         <span class="text-xs text-red-500 mt-0.5">{{ $message }}</span>
                         @enderror
                     </div>
@@ -78,15 +94,15 @@
                     </div>
                 </div>
 
-                <div class="{{ request()->hasAny(['user_id']) }} flex gap-2 justify-end">
-                    @if(request()->filled('q') || request()->filled('user_id') || request()->filled('date_from') || request()->filled('date_to')/*request()->hasAny(['q', 'user_id', 'date_from', 'date_to'])*/)
+                <div class="{{ request()->hasAny(['user_id']) }} flex flex-col">
+                    <button type="submit" class="max-h-9.5 mt-5 border border-border border-gray-700 dark:border-gray-300 rounded-lg px-4 py-2 button-back cursor-pointer">Search</button>
+
+                    @if(request()->filled('q') || request()->filled('user_id') || request()->filled('date_from') || request()->filled('date_to') || request()->filled('tag_id')/*request()->hasAny(['q', 'user_id', 'date_from', 'date_to'])*/)
                         <a href="{{ route('posts.index') }}"
-                           class="border border-red-500 text-red-500 rounded-lg px-4 py-2 text-sm font-medium hover:bg-red-50 dark:hover:bg-gray-800 flex items-center transition-colors cursor-pointer">
+                           class="mt-7.5 border border-red-500 text-red-500 rounded-lg px-4 py-2 text-sm font-medium hover:bg-red-50 dark:hover:bg-gray-800 flex items-center transition-colors cursor-pointer">
                             Reset
                         </a>
                     @endif
-
-                    <button type="submit" class="border border-border border-gray-700 dark:border-gray-300 rounded-lg px-4 py-2 button-back cursor-pointer">Search</button>
                 </div>
             </form>
 
@@ -138,6 +154,20 @@
                                     </div>
                                     @endcanany
                                 </div>
+
+                                <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400 mt-2">
+                                    <i>
+                                        <b>Authored by: </b>
+                                        {{ $post->user->name }} ({{ $post->user->email }})
+                                    </i>
+                                </div>
+                                <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400">
+                                    <i>
+                                        <b>Created at: </b>
+                                        {{ $post->created_at->format('Y-m-d H:i:s') }} ({{ $post->created_at->diffForHumans() }})
+                                    </i>
+                                </div>
+
                                 <div class="mt-4">
                                     <p>{{ Str::words($post->content, 20) }}</p>
                                 </div>
@@ -149,24 +179,24 @@
                                          class="w-1/2 h-auto object-cover rounded-md">
                                 </div>
                             @endif
-                            <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400">
-                                <i>
-                                    <b>Authored by: </b>
-                                    {{ $post->user->name }} ({{ $post->user->email }})
-                                </i>
-                            </div>
-                            <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400">
-                                <i>
-                                    <b>Created at: </b>
-                                    {{ $post->created_at->format('Y-m-d H:i:s') }} ({{ $post->created_at->diffForHumans() }})
-                                </i>
-                            </div>
                             @if($post->comments_count)
                                 <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400">
                                     <i>
                                         <b>Comments: </b>
                                         {{ $post->total_comments_count }}
                                     </i>
+                                </div>
+                            @endif
+                            @if($post->tags->isNotEmpty())
+                                <div class="flex flex-wrap gap-2 min-h-8 p-2 rounded-xl">
+                                    <b class="text-gray-600 dark:text-gray-400">Tags: </b>
+                                    @foreach ($post->tags as $tag)
+                                        <a href="{{ route('posts.index', array_merge(request()->query(), ['tag_id' => $tag->id])) }}">
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-semibold">
+                                                {{ $tag->name }}
+                                            </span>
+                                        </a>
+                                    @endforeach
                                 </div>
                             @endif
                         </div>

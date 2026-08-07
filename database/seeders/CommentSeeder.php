@@ -29,14 +29,15 @@ class CommentSeeder extends Seeder
                 ->make([
                     'post_id' => $post->id,
                     'parent_id' => null,
-                ])->map(function ($comment) {
-                // With a 15% chance, mark the root comment as edited.
-                if (fake()->boolean(15)) {
-                    $comment->updated_at = fake()->dateTimeBetween($comment->created_at, 'now');
-                }
-                $comment->save();
-                return $comment;
-            });
+                ])->map(function ($comment) use ($post) {
+                    $comment->created_at = fake()->dateTimeBetween($post->created_at, 'now');
+                    // With a 15% chance, mark the root comment as edited.
+                    if (fake()->boolean(15)) {
+                        $comment->updated_at = fake()->dateTimeBetween($comment->created_at, 'now');
+                    }
+                    $comment->save();
+                    return $comment;
+                });
 
             // 2. Starting the generation of the response chain (maximum depth, for example, 3)
             // Turning the array back into a Collection for recursion to work.
@@ -61,7 +62,8 @@ class CommentSeeder extends Seeder
                 $replies = Comment::factory(fake()->numberBetween(1, 3))
                     ->child($parent->id, $postId, $parent->created_at)
                     ->make()
-                    ->map(function ($reply) {
+                    ->map(function ($reply) use ($parent) {
+                        $reply->created_at = fake()->dateTimeBetween($parent->created_at, 'now');
                         // With a 15% chance, mark the child comment as edited.
                         if (fake()->boolean(15)) {
                             $reply->updated_at = fake()->dateTimeBetween($reply->created_at, 'now');

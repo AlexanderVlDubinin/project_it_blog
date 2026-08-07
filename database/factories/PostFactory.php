@@ -36,6 +36,13 @@ class PostFactory extends Factory
             $newFilename = null;
         }
 
+        $createdAt = fake()->dateTimeBetween('-1 year', 'now');
+        if (fake()->boolean(25)) {
+            $updatedAt = fake()->dateTimeBetween($createdAt, 'now');
+        } else {
+            $updatedAt = $createdAt;
+        }
+
         return [
             'title' => fake()->sentence(5),
             'content' => collect(range(4, mt_rand(8, 14)))
@@ -43,8 +50,8 @@ class PostFactory extends Factory
                 ->implode("\n\n"), // collect - multiparagraph text
             'is_published' => fake()->boolean(80),
             'image' => $newFilename,
-            'created_at' => fake()->dateTimeBetween('-1 year', 'now'),
-            'updated_at' => fake()->dateTimeBetween('-1 year', 'now')
+            'created_at' => $createdAt,
+            'updated_at' => $updatedAt
         ];
     }
 }
