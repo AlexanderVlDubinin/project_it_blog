@@ -2,19 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserReactionRequest;
 use App\Models\Comment;
 use App\Models\Post;
-use Illuminate\Http\Request;
 
 class ReactionController extends Controller
 {
-    public function toggle(Request $request)
+    public function toggle(UserReactionRequest $request)
     {
-        $request->validate([
-            'type' => 'required|in:post,comment',
-            'id' => 'required|integer',
-            'is_like' => 'required|boolean',
-        ]);
+        $request->validated();
 
         // Determine what is being liked
         $model = $request->type === 'post'
