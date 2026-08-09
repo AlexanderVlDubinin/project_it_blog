@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasReactions;
 use Database\Factories\CommentFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Comment extends Model
 {
     /** @use HasFactory<CommentFactory> */
-    use HasFactory;
+    use HasFactory, HasReactions;
 
     /**
      * Dynamic control of the comment text.

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasReactions;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Post extends Model
 {
     /** @use HasFactory<PostFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasReactions;
 
     protected $casts = [
         'is_published' => 'boolean',

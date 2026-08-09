@@ -23,7 +23,15 @@ class LoadPostComments
         return Comment::query()
             ->where('post_id', $post->id)
             ->whereNull('parent_id')
-            ->with(['user', 'allChildren']) // Eager loading authors and all children
+            ->with(['user', 'allChildren', 'userReaction']) // Eager loading authors and all children + user reaction
+            ->withCount([
+                'reactions as likes_count' => function ($query) {
+                    $query->where('is_like', true);
+                },
+                'reactions as dislikes_count' => function ($query) {
+                    $query->where('is_like', false);
+                }
+            ])
             ->orderBy('created_at', 'desc')
             ->paginate(5)
             ->fragment('comments_section_start'); // THIS LINE ADDS AN ANCHOR TO THE LINKS

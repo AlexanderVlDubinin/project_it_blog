@@ -62,8 +62,16 @@ class PublishedPaginatedPosts
                 });
             })
 
-            ->with(['user', 'tags']) // adding both - user and tags
+            ->with(['user', 'tags', 'userReaction']) // adding - user and tags and user reaction
             ->withCount('comments')
+            ->withCount([
+                'reactions as likes_count' => function ($query) {
+                    $query->where('is_like', true);
+                },
+                'reactions as dislikes_count' => function ($query) {
+                    $query->where('is_like', false);
+                }
+            ])
             ->orderByDesc('created_at')
             ->orderBy('id')
             ->paginate($limit)
