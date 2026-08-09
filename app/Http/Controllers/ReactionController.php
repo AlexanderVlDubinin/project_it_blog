@@ -50,7 +50,7 @@ class ReactionController extends Controller
         return response()->json([
             'likes_count' => $model->likesCount(),
             'dislikes_count' => $model->dislikesCount(),
-            'user_reaction' => $userReactionStatus, // Передаем статус 'like', 'dislike' или 'none'
+            'user_reaction' => $userReactionStatus, // Transmitting the status of 'like', 'dislike' or 'none'
         ]);
     }
 }

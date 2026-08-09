@@ -47,7 +47,16 @@ class Comment extends Model
      */
     public function children(): HasMany
     {
-        return $this->hasMany(Comment::class, 'parent_id');
+        // without user and reaction counts (likes and dislikes)
+        //return $this->hasMany(Comment::class, 'parent_id');
+
+        // With user and reaction counts (likes and dislikes)
+        return $this->hasMany(Comment::class, 'parent_id')
+            ->with(['user', 'userReaction'])
+            ->withCount([
+                'reactions as likes_count' => fn($q) => $q->where('is_like', true),
+                'reactions as dislikes_count' => fn($q) => $q->where('is_like', false),
+            ]);
     }
 
     /**

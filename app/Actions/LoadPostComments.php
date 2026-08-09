@@ -8,7 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class LoadPostComments
 {
-    public function __invoke(Post $post): LengthAwarePaginator
+    public function __invoke(Post $post): array // LengthAwarePaginator
     {
         // Loading the post and recursively only the ROOT comments along with their authors
         /*
@@ -19,8 +19,13 @@ class LoadPostComments
         ]);
         */
 
+        // Loading the post and its reaction count
+        $post->loadCount([
+            'reactions as likes_count' => fn($q) => $q->where('is_like', true)
+        ])->load('userReaction');
+
         // Loading the ROOT comments along with their authors + children + pagination
-        return Comment::query()
+        $comments = Comment::query()
             ->where('post_id', $post->id)
             ->whereNull('parent_id')
             ->with(['user', 'allChildren', 'userReaction']) // Eager loading authors and all children + user reaction
@@ -35,5 +40,10 @@ class LoadPostComments
             ->orderBy('created_at', 'desc')
             ->paginate(5)
             ->fragment('comments_section_start'); // THIS LINE ADDS AN ANCHOR TO THE LINKS
+
+        return [
+            'post' => $post,
+            'comments' => $comments,
+        ];
     }
 }
