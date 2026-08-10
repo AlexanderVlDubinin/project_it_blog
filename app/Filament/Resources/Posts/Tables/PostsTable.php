@@ -12,19 +12,25 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PostsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            // 1. Adding withCount to the base query of the table for optimization
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount([
+                'reactions as likes_count' => fn ($q) => $q->where('is_like', true),
+            ]))
             ->columns([
                 TextColumn::make('title')
                     ->searchable()
                     ->sortable(),
                 IconColumn::make('is_published')
                     ->boolean()
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter(),
                 //ImageColumn::make('image'),
                 ImageColumn::make('image')
                     ->disk('public')
@@ -38,6 +44,13 @@ class PostsTable
                     ->falseColor('danger'),*/
                 TextColumn::make('user.email')
                     ->searchable()
+                    ->sortable(),
+                TextColumn::make('likes_count')
+                    ->label('Likes')
+                    ->icon('heroicon-o-heart') // Heart icon
+                    ->color('danger')          // Red color of the text/icon
+                    ->badge()                  // Display as a badge
+                    ->alignCenter()
                     ->sortable(),
                 TextColumn::make('deleted_at')
                     ->dateTime()

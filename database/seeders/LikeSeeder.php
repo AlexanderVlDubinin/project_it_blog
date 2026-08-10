@@ -36,11 +36,15 @@ class LikeSeeder extends Seeder
             $shuffledUsers = $users->random(rand(1, min(35, $users->count())));
 
             foreach ($shuffledUsers as $user) {
+                $createdAt = fake()->dateTimeBetween($post->created_at, 'now');
+
                 Like::factory()
                     ->forPost($post)
                     ->create([
                         'user_id' => $user->id,
-                        'is_like' => true // The posts only have likes (hearts)
+                        'is_like' => true, // The posts only have likes (hearts)
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt
                     ]);
             }
         }
@@ -55,11 +59,15 @@ class LikeSeeder extends Seeder
             $shuffledUsers = $users->random(rand(1, min(25, $users->count())));
 
             foreach ($shuffledUsers as $user) {
+                $createdAt = fake()->dateTimeBetween($comment->created_at, 'now');
+
                 Like::factory()
                     ->forComment($comment)
                     ->create([
                         'user_id' => $user->id,
                         // Boolean(80) from the factory will automatically work here (like or dislike)
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt
                     ]);
             }
         }

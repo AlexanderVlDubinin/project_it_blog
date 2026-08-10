@@ -20,6 +20,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CommentsRelationManager extends RelationManager
 {
@@ -52,6 +53,11 @@ class CommentsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('body')
+            // 1. Optimizing the communication request by adjusting the like and dislike counters.
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount([
+                'reactions as likes_count' => fn ($q) => $q->where('is_like', true),
+                'reactions as dislikes_count' => fn ($q) => $q->where('is_like', false),
+            ]))
             ->columns([
                 TextColumn::make('body')
                     ->label('Text')
@@ -61,9 +67,39 @@ class CommentsRelationManager extends RelationManager
                     ->default('Anonymous')
                     ->searchable()
                     ->sortable(),
+
+                // The likes column
+                TextColumn::make('likes_count')
+                    ->label('👍')
+                    ->alignCenter(),
+
+                // The overall Rating (Balance) column
+                TextColumn::make('rating')
+                    ->label('Rating')
+                    ->state(function ($record): int {
+                        // Calculating the difference on the fly from uploaded counters
+                        return ($record->likes_count ?? 0) - ($record->dislikes_count ?? 0);
+                    })
+                    ->badge()
+                    // Dynamically changing the badge color: green (+), red (-), gray (0)
+                    ->color(fn (int $state): string => match (true) {
+                        $state > 0 => 'success',
+                        $state < 0 => 'danger',
+                        default => 'gray',
+                    })
+                    // Adding a plus sign for a positive rating
+                    ->formatStateUsing(fn (int $state): string => $state > 0 ? "+{$state}" : (string)$state)
+                    ->alignCenter(),
+
+                // The dislikes column
+                TextColumn::make('dislikes_count')
+                    ->label('👎')
+                    ->alignCenter(),
+
                 TextColumn::make('parent.id')
                     ->default('-')
-                    ->searchable(),
+                    ->searchable()
+                    ->alignCenter(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -73,10 +109,12 @@ class CommentsRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_deleted')
-                    ->boolean(),
+                    ->boolean()
+                    ->alignCenter(),
                 TextColumn::make('deletion_reason')
                     ->default('-')
-                    ->searchable(),
+                    ->searchable()
+                    ->alignCenter(),
             ])
             ->filters([
                 //

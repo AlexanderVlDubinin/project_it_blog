@@ -34,6 +34,6 @@
             </span>
         </x-slot>
     @endif
-    <!-- Примечание: Если нужно вывести количество уведомлений, передайте число в параметр badge="5" -->
+    <!-- Note: If you need to output the number of notifications, pass the number to the badge="5" parameter -->
     </x-filament::icon-button>
 </div>

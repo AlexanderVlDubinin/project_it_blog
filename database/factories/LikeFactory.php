@@ -20,10 +20,14 @@ class LikeFactory extends Factory
      */
     public function definition(): array
     {
+        $createdAt = fake()->dateTimeBetween('-1 year', 'now');
+
         return [
             // Selection a random user from the existing ones in the database
             'user_id' => User::query()->inRandomOrder()->first()?->id ?? User::factory(),
             'is_like' => fake()->boolean(67), // 67% chance of a like, 33% dislike
+            'created_at' => $createdAt,
+            'updated_at' => $createdAt
         ];
     }
 
