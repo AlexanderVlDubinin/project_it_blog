@@ -116,6 +116,6 @@ class PostController extends Controller
         $this->postService->destroy($post);
 
         return redirect()->route('posts.index')
-            ->with('success', 'Post deleted successfully');
+            ->with('success', 'Post successfully moved to the trash'); // 'Post deleted successfully'
     }
 }

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
 {
@@ -19,6 +20,16 @@ class Post extends Model
     protected $casts = [
         'is_published' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        // The event is triggered BEFORE (forceDeleting, if forceDeleted - AFTER) the hard deletion from the database is performed.
+        static::forceDeleting(function (Post $post) {
+            if ($post->image && Storage::disk('public')->exists($post->image)) {
+                Storage::disk('public')->delete($post->image);
+            }
+        });
+    }
 
     public function user(): BelongsTo
     {

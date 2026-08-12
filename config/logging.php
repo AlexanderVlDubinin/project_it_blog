@@ -127,6 +127,14 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+
+        // Custom channels
+        'custom-commands' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/custom-commands.log'),
+            'level' => 'info',
+            'days' => 14,
+        ],
     ],
 
 ];

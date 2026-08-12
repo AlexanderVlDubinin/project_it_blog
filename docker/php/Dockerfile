@@ -20,7 +20,7 @@ RUN apk add --no-cache \
 # Установка PHP расширений (включая pdo_pgsql для PostgreSQL и intl для Filament) (добавлено конфигурирование и установка gd)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install pdo pdo_pgsql mbstring bcmath zip ctype gd intl
+    && docker-php-ext-install pdo pdo_pgsql mbstring bcmath zip ctype gd intl fileinfo
 
 # Установка расширения phpredis через pecl
 RUN pecl install redis && docker-php-ext-enable redis

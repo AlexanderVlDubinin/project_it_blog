@@ -98,12 +98,12 @@ class PostService
         });
     }
 
+    /**
+     * Soft delete a post (moving to the trash)
+     */
     public function destroy(Post $post): void
     {
         DB::transaction(function () use ($post) {
-            if ($post->image) {
-                Storage::disk('public')->delete($post->image);
-            }
             $post->delete();
         });
     }
