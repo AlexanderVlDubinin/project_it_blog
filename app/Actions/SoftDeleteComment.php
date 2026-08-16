@@ -14,6 +14,9 @@ class SoftDeleteComment
 
         if ($finalReason === CommentDeletionReason::OTHER->value) {
             $finalReason = $request->input('custom_reason', 'Violation of community rules');
+        } else {
+            $allReasons = CommentDeletionReason::labels();
+            $finalReason = $allReasons[$finalReason];
         }
 
         $comment->update([

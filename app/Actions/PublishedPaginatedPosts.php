@@ -16,11 +16,20 @@ class PublishedPaginatedPosts
     public function __invoke(array $filters = [], $limit = 10): array // LengthAwarePaginator (for posts only)
     {
         $canManageSite = Gate::allows('manage-site');
+        $currentUserId = auth()->id();
 
         $postsQuery = Post::query();
 
         if (!$canManageSite) {
-            $postsQuery->where('posts.is_published', true);
+            $postsQuery->where(function ($query) use ($currentUserId) {
+                // Show the post if it is published...
+                $query->where('posts.is_published', true);
+
+                // ...OR if the current user is the author of this post
+                if ($currentUserId) {
+                    $query->orWhere('posts.user_id', $currentUserId);
+                }
+            });
         }
 
         $postsQuery->whereHas('user', function ($query) {
@@ -29,8 +38,8 @@ class PublishedPaginatedPosts
 
         $posts = $postsQuery
             // Line search (q)
-            ->when(!empty($filters['q']), function ($query) {
-                $search = trim((string) request('q'));
+            ->when(!empty($filters['q']), function ($query) use ($filters) {
+                $search = trim((string) ($filters['q'] ?? ''));
                 $query->where(function ($q) use ($search) {
                     if (is_numeric($search)) {
                         $q->where('posts.id', (int) $search);
@@ -56,9 +65,9 @@ class PublishedPaginatedPosts
             })
 
             // 5. Filter by tad
-            ->when(!empty($filters['tag']), function ($query) use ($filters) {
+            ->when(!empty($filters['tag_id']), function ($query) use ($filters) {
                 $query->whereHas('tags', function ($q) use ($filters) {
-                    $q->where('tags.id', $filters['tag']);
+                    $q->where('tags.id', $filters['tag_id']);
                 });
             })
 

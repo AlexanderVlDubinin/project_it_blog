@@ -7,7 +7,7 @@
 
     <div class="py-12 text-gray-800 dark:text-gray-200">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <a href="{{ route('posts.index') }}">
+            <a href="{{ route('posts.index') }}" class="flex w-fit">
                 <button class="flex items-center justify-between border border-border border-gray-700 dark:border-gray-300 rounded-lg px-4 py-2 button-back cursor-pointer">
                     <svg fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-6 h-6 mr-3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
@@ -18,6 +18,9 @@
 
             <h1 class="mt-6 text-head text-indigo-400 font-bold text-4xl">
                 {{ $post->title }}
+                @if(!$post->is_published)
+                    (<i class="text-red-500 mt-0.5 font-light">Draft</i>)
+                @endif
             </h1>
 
             <div class="mt-2 flex items-center justify-between w-auto">
@@ -39,11 +42,11 @@
                             class="js-reaction-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-200 border-gray-200 hover:bg-gray-50 text-gray-500 {{ $hasLiked ? 'bg-red-50 border-red-500 text-red-600' : '' }}"
                             data-is-like="1">
                         <!-- Contoured heart (default) -->
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="js-icon-outline size-5 {{ $hasLiked ? 'hidden' : '' }}">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="has-not-liked-by-current-user js-icon-outline size-5 {{ $hasLiked ? 'hidden' : '' }}">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                         </svg>
                         <!-- Filled heart (active) -->
-                        <svg viewBox="0 0 24 24" fill="currentColor" class="js-icon-solid size-5 text-red-600 {{ $hasLiked ? '' : 'hidden' }}">
+                        <svg viewBox="0 0 24 24" fill="currentColor" class="has-liked-by-current-user js-icon-solid size-5 text-red-600 {{ $hasLiked ? '' : 'hidden' }}">
                             <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3c1.749 0 3.3 1.01 4.061 2.473C12.51 4.01 14.061 3 15.813 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                         </svg>
                         <span class="js-likes-count font-medium text-sm">{{ $post->likes_count ?? 0 }}</span>
@@ -105,6 +108,7 @@
                                 placeholder="Write a text..."
                                 required
                             >{{ old('body') }}</textarea>
+                            @error('body')<p class="error">{{ $message }}</p>@enderror
                         </div>
 
                         <div class="flex gap-2.5">

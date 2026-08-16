@@ -69,7 +69,7 @@ class PostController extends Controller
      */
     public function show(Post $post, LoadPostComments $loadPostComments)
     {
-        $this->authorize('view', $post);
+        $this->authorize('view', $post); // $this->authorize('view', [$user, $post]);
 
         $result = $loadPostComments($post);
         $post = $result['post'];

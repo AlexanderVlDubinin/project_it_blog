@@ -31,7 +31,7 @@
 
             <div class="flex gap-2.5 items-center flex-wrap">
                 <!-- The reason selection selector -->
-                <div class="flex-1 w-[50vw] min-w-[200px]">
+                <div class="flex-1 w-[50vw] min-w-50">
                     <select
                         name="reason_key"
                         class="w-full py-1 px-2 border border-solid border-[#cbd5e0] bg-white dark:bg-gray-800 rounded text-[14px]"

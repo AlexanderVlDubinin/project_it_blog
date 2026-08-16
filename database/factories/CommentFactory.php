@@ -29,6 +29,9 @@ class CommentFactory extends Factory
         // Base creation date
         $createdAt = fake()->dateTimeBetween('-1 year', 'now');
 
+        $deletionReasons = CommentDeletionReason::labels();
+        $deletionReasons[CommentDeletionReason::OTHER->value] = 'Some custom reason';
+
         return [
             'body' => fake()->paragraph(2),
             'parent_id' => null, // By default, the root
@@ -37,14 +40,15 @@ class CommentFactory extends Factory
                 ? (User::query()->inRandomOrder()->first()?->id ?? User::factory())
                 : null,
             'is_deleted' => $isDeleted,
-            'deletion_reason' => $isDeleted ? fake()->randomElement([
-                CommentDeletionReason::SPAM->value,
-                CommentDeletionReason::PROFANITY->value,
-                CommentDeletionReason::FLOOD->value,
-                CommentDeletionReason::INSULTS->value,
-                CommentDeletionReason::RULE_VIOLATION->value,
-                'Some custom reason',
-            ]) : null,
+            'deletion_reason' => $isDeleted ? fake()->randomElement($deletionReasons) : null,
+//            'deletion_reason' => $isDeleted ? fake()->randomElement([
+//                CommentDeletionReason::SPAM->value,
+//                CommentDeletionReason::PROFANITY->value,
+//                CommentDeletionReason::FLOOD->value,
+//                CommentDeletionReason::INSULTS->value,
+//                CommentDeletionReason::RULE_VIOLATION->value,
+//                'Some custom reason',
+//            ]) : null,
             'created_at' => $createdAt,
             'updated_at' => $createdAt, // By default, the dates match (the comment was NOT edited)
         ];

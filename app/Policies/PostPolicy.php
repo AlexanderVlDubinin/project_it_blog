@@ -31,7 +31,21 @@ class PostPolicy
      */
     public function view(User $user, Post $post): bool
     {
-        return true;
+        $canView = false;
+
+        if ($post->is_published) {
+            $canView = true;
+        }
+
+        if ($user->role === UserRole::MODERATOR) {
+            $canView = true;
+        }
+
+        if ($post->user_id === $user->id && $user->role === UserRole::AUTHOR) {
+            $canView = true;
+        }
+
+        return $canView;
     }
 
     /**

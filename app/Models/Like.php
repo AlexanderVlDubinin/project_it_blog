@@ -12,6 +12,13 @@ class Like extends Model
     /** @use HasFactory<LikeFactory> */
     use HasFactory;
 
+    protected function casts(): array
+    {
+        return [
+            'is_like' => 'boolean',
+        ];
+    }
+
     public function likeable(): MorphTo
     {
         return $this->morphTo();

@@ -54,4 +54,30 @@ class PostFactory extends Factory
             'updated_at' => $updatedAt
         ];
     }
+
+    /*
+    // for testing
+    public function definition(): array
+    {
+        // Instead of reading the physical disk, we just generate a fake path string.
+        // If you physically need a file in a specific test, you will create it via Storage::fake().
+        $newFilename = 'posts/' . Str::random(12) . '.jpg';
+
+        $createdAt = fake()->dateTimeBetween('-1 year', 'now');
+        $updatedAt = fake()->boolean(25)
+            ? fake()->dateTimeBetween($createdAt, 'now')
+            : $createdAt;
+
+        return [
+            'title' => fake()->sentence(5),
+            // Shorten the text! 2-3 short paragraphs of 2-3 sentences
+            // are absolutely enough to check the layout, filtering and logic.
+            'content' => fake()->paragraphs(mt_rand(2, 3), true),
+            'is_published' => fake()->boolean(80),
+            'image' => $newFilename,
+            'created_at' => $createdAt,
+            'updated_at' => $updatedAt
+        ];
+    }
+    */
 }

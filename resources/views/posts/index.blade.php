@@ -38,7 +38,7 @@
                         <select name="tag_id" class="w-full border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm h-9.5">
                             <option value="">All Tags</option>
                             @foreach($tags as $tag)
-                                <option value="{{ $tag->id }}" {{ request('user_id') == $tag->id ? 'selected' : '' }}>
+                                <option value="{{ $tag->id }}" {{ request('tag_id') == $tag->id ? 'selected' : '' }}>
                                     {{ $tag->name }}
                                 </option>
                             @endforeach
@@ -113,7 +113,12 @@
                             <div>
                                 <div class="flex items-center justify-between w-full items-start">
                                     <h2 class="mt-6 text-head text-indigo-400 font-bold text-4xl underline">
-                                        <a href="/posts/{{ $post->id }}">{{ $post->title }}</a>
+                                        <a href="/posts/{{ $post->id }}">
+                                            {{ $post->title }}
+                                            @if(!$post->is_published)
+                                                (<i class="text-red-500 mt-0.5 font-light">Draft</i>)
+                                            @endif
+                                        </a>
                                     </h2>
 
                                     @canany(['manage-site', 'owner-action'], $post)
