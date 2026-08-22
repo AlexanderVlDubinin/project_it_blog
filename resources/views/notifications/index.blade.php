@@ -42,7 +42,7 @@
                 @if(auth()->user()->unreadNotifications()->exists())
                     <form action="{{ route('notifications.markAllAsRead') }}" method="POST" class="ml-4">
                         @csrf
-                        <button type="submit" class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-indigo-500 rounded-lg px-4 py-2 button-back cursor-pointer">
+                        <button type="submit" data-test="mark-all-as-read-btn" class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-indigo-500 rounded-lg px-4 py-2 button-back cursor-pointer">
                             <svg class="w-4 h-4 mr-2 text-gray-500 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7M5 7l4 4 6-6"></path>
                             </svg>
@@ -59,7 +59,7 @@
                               @submit.prevent="if (confirm('Are you sure you want to permanently delete all the notifications you have already read?')) $el.submit()">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-red-700 rounded-lg px-4 py-2 button-back cursor-pointer">
+                            <button type="submit" data-test="clear-all-read-btn" class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-red-700 rounded-lg px-4 py-2 button-back cursor-pointer">
                                 <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mr-2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                 </svg>
@@ -88,36 +88,36 @@
                     ][$status] ?? ['bg' => 'bg-blue-100', 'bgExtra' => 'bg-blue-500', 'bgBtn' => 'bg-blue-50 hover:bg-blue-200', 'border' => 'border-blue-400', 'mainText' => 'text-blue-500', 'headerText' => 'text-blue-700', 'subText' => 'text-blue-400'];//'blue';
                 @endphp
 
-                <div class="mt-2 p-4 border border-2 {{ $notification->unread() ? $colors['border'] : $colors['border'].' saturate-40' }} rounded-lg flex items-start justify-between {{ $colors['bg'] }}">
+                <div class="notification-block-{{ $notification->id }} mt-2 p-4 border border-2 {{ $notification->unread() ? $colors['border'] : $colors['border'].' saturate-40' }} rounded-lg flex items-start justify-between {{ $colors['bg'] }}">
 
                     <div class="flex-1">
                         <div class="flex items-center space-x-2">
                             <!-- The unread label -->
                             @if($notification->unread())
-                                <span class="w-2 h-2 rounded-full {{ $colors['bgExtra'] }} shrink-0"></span>
+                                <span class="unread-label-{{ $notification->id }} w-2 h-2 rounded-full {{ $colors['bgExtra'] }} shrink-0"></span>
                             @endif
 
                             <!-- Icon -->
-                            @svg($icon, 'w-6 h-6 ' . ($notification->unread() ? $colors['headerText'] : $colors['headerText'].' saturate-40') )
+                            @svg($icon, $icon . ' w-6 h-6 ' . ($notification->unread() ? $colors['headerText'] : $colors['headerText'].' saturate-40') )
 
-                            <h3 class="font-bold text-2xl {{ $notification->unread() ? $colors['headerText'] : $colors['headerText'].' saturate-40' }}">
+                            <h3 class="notification-title-{{ $notification->id }} font-bold text-2xl {{ $notification->unread() ? $colors['headerText'] : $colors['headerText'].' saturate-40' }}">
                                 {{ $notification->data['title'] ?? 'Notification' }}
                             </h3>
                         </div>
 
-                        <p class="{{ $notification->unread() ? $colors['mainText'] : $colors['mainText'].' saturate-40' }} text-lg mt-1">
+                        <p class="notification-body-{{ $notification->id }} {{ $notification->unread() ? $colors['mainText'] : $colors['mainText'].' saturate-40' }} text-lg mt-1">
                             {{ $notification->data['body'] ?? '...' }}
                         </p>
 
-                        <span class="text-sm {{ $notification->unread() ? $colors['subText'] : $colors['subText'].' saturate-40' }} block mt-2">
+                        <span class="notification-time-{{ $notification->id }} text-sm {{ $notification->unread() ? $colors['subText'] : $colors['subText'].' saturate-40' }} block mt-2">
                             {{ $notification->created_at->diffForHumans() }}
                         </span>
                     </div>
 
                     @if($notification->unread() || $isCommentReply)
                     <!-- Action Button (Smart Link) -->
-                    <div class="ml-4">
-                        <a href="{{ route('notifications.read', $notification->id) }}"
+                    <div class="notification-{{ $notification->id }} {{ $isCommentReply ? ($notification->unread() ? 'action-button smart-link' : 'smart-link') : 'action-button' }} ml-4">
+                        <a href="{{ route('notifications.read', $notification->id) }}" data-test="mark-as-read-notification-{{ $notification->id }}-btn"
                            class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border border-border {{ $notification->unread() ? $colors['border'] : $colors['border'].' saturate-40' }} {{ $notification->unread() ? $colors['headerText'] : $colors['headerText'].' saturate-40' }} {{ $notification->unread() ? $colors['bgBtn'] : $colors['bgBtn'].' saturate-40' }} transition">
                             {{ $notification->unread() ? ($isCommentReply ? 'Mark as read & Open' : 'Mark as read') : 'Open' }}
                         </a>
@@ -126,15 +126,17 @@
                 </div>
             @empty
                 <div class="p-8 font-bold text-center text-2xl text-gray-500">
-                    You don't have any notifications yet.
+                    You do not have any notifications yet.
                 </div>
             @endforelse
         </div>
 
         <!-- Pagination -->
-        <div class="mt-4">
-            {{ $notifications->links() }}
-        </div>
+        @if($notifications->hasPages())
+            <div class="custom-pagination mt-4 flex justify-center">
+                {{ $notifications->links() }}
+            </div>
+        @endif
     </div>
 
 </x-app-layout>

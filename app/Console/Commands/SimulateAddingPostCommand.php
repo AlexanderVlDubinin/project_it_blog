@@ -34,6 +34,15 @@ class SimulateAddingPostCommand extends Command
         $dryRun = $this->option('dryRun') ?? false;
         $addTags = $this->option('addTags') ?? false;
 
+        $validatedData = $this->addingPost->beforeImportNews($userId);
+        if ($validatedData['status'] === 'error') {
+            Log::channel('custom-commands')->error($validatedData['message']);
+            $this->error($validatedData['message']);
+
+            return CommandAlias::FAILURE;
+        }
+        $userId = $validatedData['user_id'];
+
         $startMessage = 'Start importing news with parameters: newsNum = '.$newsNum;
         $startMessage .= $userId ? ', userId = '.$userId : '';
         $startMessage .= $addTags ? ', addTags = true' : '';

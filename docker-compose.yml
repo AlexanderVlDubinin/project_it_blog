@@ -31,7 +31,7 @@ services:
       - postgres
       - redis # Добавить, чтобы PHP ждал запуска Redis
 
-  # PostgreSQL (База данных)
+  # PostgreSQL (database)
   postgres:
     image: postgres:16-alpine
     container_name: laravel_pet_postgres
@@ -47,7 +47,7 @@ services:
     networks:
       - laravel_pet_network
 
-  # Mailpit (Тестирование почты)
+  # Mailpit (Testing the mail)
   mailpit:
     image: axllent/mailpit
     container_name: laravel_pet_mailpit
@@ -58,7 +58,7 @@ services:
     networks:
       - laravel_pet_network
   
-  # Redis (кэш, очереди)
+  # Redis (cache, queues)
   redis:
     image: redis:7-alpine
     container_name: laravel_pet_redis
@@ -70,7 +70,7 @@ services:
     networks:
       - laravel_pet_network
   
-  # Node.js (Vite) - Автозапуск сборщика в фоне
+  # Node.js (Vite) - Autorun of the importer in the background
   node:
     #image: node:22-alpine
     image: node:lts-alpine
@@ -80,12 +80,13 @@ services:
     volumes:
       - .:/var/www
     ports:
-      - "5173:5173" # Порт для Hot Module Replacement (HMR)
+      - "5173:5173" # port for Hot Module Replacement (HMR)
     networks:
       - laravel_pet_network
     environment:
       - NODE_ENV=development
-    # Команда автоматически ставит пакеты при первом старте и запускает Vite наружу
+      - VITE_APP_URL=http://nginx  # Added: so that Vite inside the Docker network knows where to look for the application
+    # The command automatically installs packages on the first start and launches Vite externally
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     depends_on:
       - php
@@ -97,5 +98,5 @@ networks:
 volumes:
   pgdata:
     driver: local
-  redisdata: # Добавлено для сохранения данных Redis при перезапуске
+  redisdata: # Added to save Redis data when restarting
     driver: local

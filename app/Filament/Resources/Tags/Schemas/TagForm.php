@@ -12,7 +12,16 @@ class TagForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->required(),
+                    ->required()
+                    ->string()
+                    ->minLength(2)
+                    ->maxLength(50)
+                    ->rules([
+                        ['not_regex:/[^a-zA-Z0-9\s]/'],
+                    ])
+                    ->validationMessages([
+                        'not_regex' => 'The tag name must contain only letters, numbers, and spaces.',
+                    ]),
             ]);
     }
 }

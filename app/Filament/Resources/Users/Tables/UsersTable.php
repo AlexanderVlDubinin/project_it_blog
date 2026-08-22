@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Enum\UserRole;
+use App\Models\User;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -52,11 +54,17 @@ class UsersTable
                     ]),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    // disable edit action for moderator
+                    ->disabled(fn (User $record): bool =>
+                        auth()->user()->role === UserRole::MODERATOR && $record->role === UserRole::ADMIN
+                    ),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        // bulk delete is visible only for admin
+                        ->visible(fn (): bool => auth()->user()->role === UserRole::ADMIN),
                 ]),
             ]);
     }

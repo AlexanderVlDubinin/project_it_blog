@@ -16,11 +16,13 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class CommentsRelationManager extends RelationManager
 {
@@ -34,9 +36,40 @@ class CommentsRelationManager extends RelationManager
                     ->schema([
                         Textarea::make('body')
                             ->required()
+                            ->string()
+                            ->minLength(2)
+                            ->maxLength(2000)
                             ->columnSpanFull(),
                         Select::make('parent_id')
-                            ->relationship('parent', 'id'),
+                            ->nullable()
+                            ->relationship(
+                                name: 'parent',
+                                titleAttribute: 'body',
+                                modifyQueryUsing: function (Builder $query, RelationManager $livewire, Get $get) {
+                                    // 1. Obtain the ID of the current post via the parent record of the Livewire components
+                                    $postId = $livewire->getOwnerRecord()->id;
+
+                                    // 2. The current comment ID (if in editing mode, not creation mode)
+                                    $currentCommentId = $get('id');
+
+                                    return $query
+                                        ->with(['user']) // authors
+                                        ->where('post_id', $postId) // Filter: only comments on the CURRENT post
+                                        ->when($currentCommentId, function ($q) use ($currentCommentId) {
+                                            return $q->where('id', '!=', $currentCommentId); // Exclude the link to itself
+                                        })
+                                        ->select(['id', 'body', 'user_id', 'is_deleted', 'deletion_reason']); // Safe sampling for Strict Mode
+                                }
+                            )
+                            ->getOptionLabelFromRecordUsing(function ($record) {
+                                $author = $record->user?->name ?? 'Anonymous';
+                                $text = Str::limit($record->body, 40);
+
+                                return "{$author}: \"{$text}\"";
+                            })
+                            ->searchable(['body'])
+                            ->preload()
+                            ->placeholder('Root comment (no parent)'),
                         Select::make('user_id')
                             ->relationship('user', 'name')
                             ->label('Author')
@@ -121,7 +154,7 @@ class CommentsRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make(),
-                AssociateAction::make(),
+                //AssociateAction::make(),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -130,7 +163,7 @@ class CommentsRelationManager extends RelationManager
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
+                    //DissociateBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);

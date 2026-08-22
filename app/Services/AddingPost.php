@@ -13,6 +13,28 @@ use Symfony\Component\DomCrawler\Crawler;
 
 readonly class AddingPost
 {
+    public function beforeImportNews(int $userId): array
+    {
+        $messageBefore = 'Checking parameters before import news: userId = ' . $userId . '. ';
+
+        if ($userId) {
+            $user = User::query()
+                ->where('id', $userId)
+                ->where('role', 'author')
+                ->first();
+
+            if (!$user) {
+                return ['status' => 'error', 'message' => $messageBefore . 'User not found or not author.', 'user_id' => null];
+            }
+
+            $userId = (int)$user->id;
+        } else {
+            $userId = 0;
+        }
+
+        return ['status' => 'success', 'message' => $messageBefore . 'User OK.', 'user_id' => $userId];
+    }
+
     public function importNews(int $userId, string $logChannel, int $newsNum = 1, bool $addTags = false, bool $dryRun = false): array
     {
         // 1. Getting the HTML code of the page

@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Comment;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -17,7 +18,8 @@ class CommentReplied extends Notification
      * Create a new notification instance.
      */
     public function __construct(
-        protected Comment $comment
+        protected Comment $comment,
+        protected User $responder
     )
     {
         //
@@ -50,7 +52,7 @@ class CommentReplied extends Notification
         // The basic array of the Filament
         $filamentMessage = FilamentNotification::make()
             ->title('A new response to your comment')
-            ->body(auth()->user()->name . ' answered: "' . $this->comment->body . '"')
+            ->body($this->responder->name . ' answered: "' . $this->comment->body . '"')
             ->icon('heroicon-o-chat-bubble-left-right')
             ->info()
             ->getDatabaseMessage(); // Generates a Filament structure for the database

@@ -64,6 +64,7 @@
                         <button
                             type="button"
                             onclick="prepareEdit({{ $comment->id }}, '{{ addslashes($comment->getRawOriginal('body')) }}')"
+                            data-test="btn-edit-comment-{{ $comment->id }}"
                             class="btn-link border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-sky-900 rounded-lg px-2 py-0.5 cursor-pointer"
                         >
                             Edit
@@ -72,6 +73,7 @@
                         <button
                             type="button"
                             onclick="prepareReply({{ $comment->id }}, '{{ $comment->user?->name }}')"
+                            data-test="btn-reply-comment-{{ $comment->id }}"
                             class="btn-link border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-700 rounded-lg px-2 py-0.5 cursor-pointer"
                         >
                             Reply
@@ -79,11 +81,11 @@
                     @endif
                 @endif
 
-                @can('manage-site')
+                @can('change-comment-action', $comment)
                     <div class="sm:flex sm:items-center sm:ms-2 ">
                         <x-dropdown align="right" width="auto" modal="true">
                             <x-slot name="trigger">
-                                <button class="border border-border border-gray-700 dark:border-gray-300 rounded-lg inline-flex items-center px-2 py-1 border border-transparent text-sm leading-4 font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                                <button data-test="admin-actions-trigger-btn-{{ $comment->id }}" class="border border-border border-gray-700 dark:border-gray-300 rounded-lg inline-flex items-center px-2 py-1 border border-transparent text-sm leading-4 font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                                     <svg class="fill-current h-5 w-5" viewBox="0 0 20 20">
                                         <path d="M5 7h10l-5 6z" />
                                     </svg>

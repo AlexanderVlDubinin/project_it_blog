@@ -22,7 +22,7 @@ class CommentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -30,7 +30,7 @@ class CommentPolicy
      */
     public function view(User $user, Comment $comment): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -46,6 +46,11 @@ class CommentPolicy
      */
     public function update(User $user, Comment $comment): bool
     {
+        $commentOwner = $comment->user;
+        if ($commentOwner->role === UserRole::ADMIN) {
+            return $user->role === UserRole::ADMIN;
+        }
+
         return $comment->user_id === $user->id && !$comment->is_deleted;
     }
 
@@ -54,6 +59,11 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment): bool
     {
+        $commentOwner = $comment->user;
+        if ($commentOwner->role === UserRole::ADMIN) {
+            return $user->role === UserRole::ADMIN;
+        }
+
         return $user->role === UserRole::MODERATOR;
     }
 
@@ -62,6 +72,11 @@ class CommentPolicy
      */
     public function restore(User $user, Comment $comment): bool
     {
+        $commentOwner = $comment->user;
+        if ($commentOwner->role === UserRole::ADMIN) {
+            return $user->role === UserRole::ADMIN;
+        }
+
         return $user->role === UserRole::MODERATOR;
     }
 
@@ -70,6 +85,11 @@ class CommentPolicy
      */
     public function forceDelete(User $user, Comment $comment): bool
     {
+        $commentOwner = $comment->user;
+        if ($commentOwner->role === UserRole::ADMIN) {
+            return $user->role === UserRole::ADMIN;
+        }
+
         return $user->role === UserRole::MODERATOR;
     }
 }

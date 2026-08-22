@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Posts\Tables;
 
+use App\Enum\UserRole;
+use App\Models\Post;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -13,6 +15,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class PostsTable
 {
@@ -69,12 +72,32 @@ class PostsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->disabled(fn (Post $record): bool =>
+                        auth()->user()->role === UserRole::MODERATOR && $record->user?->role === UserRole::ADMIN
+                    ),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->action(function (Collection $records) {
+                            $records->each(function (Post $record) {
+                                // moderator can not delete admin posts
+                                if (auth()->user()?->role === UserRole::MODERATOR && $record->user?->role === UserRole::ADMIN) {
+                                    return;
+                                }
+                                $record->delete();
+                            });
+                        }),
+                    ForceDeleteBulkAction::make()
+                        ->action(function (Collection $records) {
+                            $records->each(function (Post $record) {
+                                if (auth()->user()?->role === UserRole::MODERATOR && $record->user?->role === UserRole::ADMIN) {
+                                    return;
+                                }
+                                $record->forceDelete();
+                            });
+                        }),
                     RestoreBulkAction::make(),
                 ]),
             ]);

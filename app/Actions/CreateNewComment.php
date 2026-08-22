@@ -22,7 +22,7 @@ class CreateNewComment
             if ($parentComment && $parentComment->user_id && $parentComment->user_id !== auth()->id()) {
 
                 // Sending via the standard Laravel notify() method
-                $parentComment->user->notify(new CommentReplied($comment));
+                $parentComment->user->notify(new CommentReplied($comment, auth()->user()));
             }
         }
     }

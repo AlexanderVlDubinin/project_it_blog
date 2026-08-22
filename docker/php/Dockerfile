@@ -1,6 +1,6 @@
 FROM php:8.4-fpm-alpine
 
-# Установка системных зависимостей (добавлены библиотеки для GD и icu-dev для intl)
+# Installation of system dependencies (libraries for GD and icu-dev for intl have been added)
 RUN apk add --no-cache \
     bash \
     curl \
@@ -15,35 +15,55 @@ RUN apk add --no-cache \
     libpng-dev \
     libjpeg-turbo-dev \
     icu-dev \
-    $PHPIZE_DEPS # Добавлено для сборки phpredis
+    # --- ADDED FOR PLAYWRIGHT & CHROMIUM ---
+    nodejs \
+    npm \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    # -------------------------------------------
+    $PHPIZE_DEPS # Added to build phpredis
 
-# Установка PHP расширений (включая pdo_pgsql для PostgreSQL и intl для Filament) (добавлено конфигурирование и установка gd)
+# --- ADDING THE OFFICIAL ALPINE EXTENSION BUILDER ---
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
+# Installation of PHP extensions (including pdo_pgsql for PostgreSQL and intl for Filament) (configuration and installation of gd and the sockets extension have been added)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-configure intl \
     && docker-php-ext-install pdo pdo_pgsql mbstring bcmath zip ctype gd intl fileinfo
 
-# Установка расширения phpredis через pecl
+# Guaranteed installation and activation of sockets for Alpine
+RUN install-php-extensions sockets
+
+# Installing the phpredis extension via pecl
 RUN pecl install redis && docker-php-ext-enable redis
 
-# Очистка после сборки phpredis
+# Cleaning up after phpredis build
 RUN apk del $PHPIZE_DEPS
 
-# Установка Composer из официального образа
+# Installing Composer from the official image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Настройка рабочей директории
+# Setting up a working directory
 WORKDIR /var/www
 
-# Создание пользователя с тем же UID/GID, что и у хоста
+# Creating a user with the same UID/GID as the host
 ARG UID=1000
 ARG GID=1000
 RUN addgroup -g ${GID} laravel && \
     adduser -D -u ${UID} -G laravel laravel
 
-# Права для корректной работы Laravel на Linux серверах при деплое
+# Rights for Laravel to work correctly on Linux servers during deployment
 RUN chown -R laravel:laravel /var/www
 
 USER laravel
+
+# --- Instruct Playwright to use the system Chromium from Alpine ---
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 EXPOSE 9000
 CMD ["php-fpm"]

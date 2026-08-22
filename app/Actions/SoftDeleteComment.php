@@ -10,13 +10,13 @@ class SoftDeleteComment
 {
     public function __invoke(SoftDeleteCommentRequest $request, Comment $comment, array $data): void
     {
-        $finalReason = $data['reason_key'];
+        $reason = $data['reason_key'];
 
-        if ($finalReason === CommentDeletionReason::OTHER->value) {
+        if ($reason === CommentDeletionReason::OTHER->value) {
             $finalReason = $request->input('custom_reason', 'Violation of community rules');
         } else {
             $allReasons = CommentDeletionReason::labels();
-            $finalReason = $allReasons[$finalReason];
+            $finalReason = $allReasons[$reason];
         }
 
         $comment->update([

@@ -84,11 +84,11 @@
 
                 <div class="mt-4 main-comment-form-container border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-800 rounded-lg px-4 py-2 h-full flex flex-col justify-between" >
                     <!-- Dynamic form header -->
-                    <h3 id="form_title">Please comment on this post</h3>
+                    <h3 id="form_title" data-test="comment-base-edit-indicator">Please comment on this post</h3>
 
                     <!-- Information bar, to whom reply (initially hidden) -->
-                    <div id="reply_target_info" class="hidden text-gray-600 dark:text-gray-400">
-                        You reply to the user: <strong id="reply_author_name"></strong>
+                    <div id="reply_target_info" class="hidden text-gray-600 dark:text-gray-400" data-test="comment-reply-indicator">
+                        You reply to the user: <strong id="reply_author_name" data-test="reply-comment-author-name"></strong>
                     </div>
 
                     <form action="{{ route('comments.store', $post) }}" method="POST" id="global_comment_form">
@@ -105,6 +105,7 @@
                                 name="body"
                                 rows="4"
                                 class="border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-800 rounded-lg w-full p-2"
+                                data-test="comment-textarea"
                                 placeholder="Write a text..."
                                 required
                             >{{ old('body') }}</textarea>
@@ -113,12 +114,12 @@
 
                         <div class="flex gap-2.5">
                             <!-- The main send button -->
-                            <button type="submit" id="form_submit_btn" class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-indigo-500 rounded-lg px-4 py-2 button-back cursor-pointer">
+                            <button type="submit" id="form_submit_btn" data-test="submit-comment-btn" class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-indigo-500 rounded-lg px-4 py-2 button-back cursor-pointer">
                                 Send comment
                             </button>
 
                             <!-- Cancel button (initially hidden) -->
-                            <button type="button" id="form_cancel_btn" onclick="resetCommentForm()" class="hidden bg-[#e53e3e] text-white border-none px-4 py-2 rounded cursor-pointer">
+                            <button type="button" id="form_cancel_btn" data-test="cancel-reply-edit-btn" onclick="resetCommentForm()" class="hidden bg-[#e53e3e] text-white border-none px-4 py-2 rounded cursor-pointer">
                                 Cancel
                             </button>
                         </div>

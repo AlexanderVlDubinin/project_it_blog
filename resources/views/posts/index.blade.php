@@ -121,7 +121,7 @@
                                         </a>
                                     </h2>
 
-                                    @canany(['manage-site', 'owner-action'], $post)
+                                    @can('change-post-action', $post)
                                     <div class="sm:flex sm:items-center sm:ms-2 mt-6">
                                         <x-dropdown align="right" width="auto">
                                             <x-slot name="trigger">
@@ -157,7 +157,7 @@
                                             </x-slot>
                                         </x-dropdown>
                                     </div>
-                                    @endcanany
+                                    @endcan
                                 </div>
 
                                 <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400 mt-2">

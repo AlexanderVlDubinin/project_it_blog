@@ -61,6 +61,10 @@ class PostPolicy
      */
     public function update(User $user, Post $post): bool
     {
+        if ($user->role === UserRole::MODERATOR && $post->user?->role === UserRole::ADMIN) {
+            return false;
+        }
+
         return $post->user_id === $user->id || $user->role === UserRole::MODERATOR;
     }
 
@@ -69,6 +73,10 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
+        if ($user->role === UserRole::MODERATOR && $post->user?->role === UserRole::ADMIN) {
+            return false;
+        }
+
         return $post->user_id === $user->id || $user->role === UserRole::MODERATOR;
     }
 
@@ -77,6 +85,10 @@ class PostPolicy
      */
     public function restore(User $user, Post $post): bool
     {
+        if ($user->role === UserRole::MODERATOR && $post->user?->role === UserRole::ADMIN) {
+            return false;
+        }
+
         return $user->role === UserRole::MODERATOR;
     }
 
@@ -85,6 +97,10 @@ class PostPolicy
      */
     public function forceDelete(User $user, Post $post): bool
     {
+        if ($user->role === UserRole::MODERATOR && $post->user?->role === UserRole::ADMIN) {
+            return false;
+        }
+
         return $user->role === UserRole::MODERATOR;
     }
 }
