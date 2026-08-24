@@ -22,7 +22,7 @@ class CommentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return (bool)$user->id;
     }
 
     /**
@@ -30,7 +30,7 @@ class CommentPolicy
      */
     public function view(User $user, Comment $comment): bool
     {
-        return true;
+        return (bool)$user->id;
     }
 
     /**

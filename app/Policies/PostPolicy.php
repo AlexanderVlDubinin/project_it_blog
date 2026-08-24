@@ -23,7 +23,7 @@ class PostPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return (bool)$user->id;
     }
 
     /**

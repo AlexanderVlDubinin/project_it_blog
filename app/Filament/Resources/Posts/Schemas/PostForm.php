@@ -60,13 +60,14 @@ class PostForm
                             ->createOptionForm([ // The "+" button next to the select to create a new tag on the fly
                                 TextInput::make('name')
                                     ->required()
-                                    ->unique('tags', 'name'), // Protection against duplicate tags in the database
+                                    ->unique('tags', 'name') // Protection against duplicate tags in the database
+                                    ->string()
+                                    ->minLength(2)
+                                    ->maxLength(50)
+                                    ->regex('/^[a-zA-Z0-9\s]+$/'),
                             ])
                             ->nestedRecursiveRules([ // Validation rules for every element of tags
-                                'string',
-                                'min:2',
-                                'max:50',
-                                'not_regex:/[^a-zA-Z0-9\s]/',
+                                'integer', // IDs only & Tag IDs must be integers
                             ])
                             ->label('Post tags'),
                 ])->columns(1), // Display fields in 1 column
