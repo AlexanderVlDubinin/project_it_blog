@@ -14,9 +14,16 @@ use Tests\TestCase;
 |
 */
 
+// Configuration for Feature-tests ONLY
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+// Configuration for Browser-tests ONLY
+pest()
+    ->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
+    ->in('Browser');
 
 /*
 |--------------------------------------------------------------------------
