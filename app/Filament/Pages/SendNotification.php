@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Enum\NotificationTypes;
 use App\Models\User;
+use App\Notifications\CustomUserNotification;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
@@ -12,10 +13,12 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
+use Filament\Forms\Components\CheckboxList; // for channels
+use Filament\Notifications\Notification as FilamentNotification; // For a pop-up success message
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Guava\IconPicker\Forms\Components\IconPicker;
+use Illuminate\Support\Facades\Notification as LaravelNotification; // For mass sending
 
 class SendNotification extends Page
 {
@@ -23,7 +26,6 @@ class SendNotification extends Page
 
     protected static ?string $navigationLabel = 'Sending notifications';
     protected static ?string $title = 'Send a notification to users';
-
     protected string $view = 'filament.pages.send-notification';
 
     // Properties for storing form data
@@ -36,7 +38,9 @@ class SendNotification extends Page
 
     public function mount(): void
     {
-        $this->form->fill([]);
+        $this->form->fill([
+            'channels' => ['database'], // Database channel by default
+        ]);
     }
 
     public function form(Schema $form): Schema
@@ -47,6 +51,17 @@ class SendNotification extends Page
                     ->description('Fill in the details below')
                     ->extraAttributes(['style' => 'margin-bottom: 2rem;'])
                     ->schema([
+                        // Selecting the sending channels
+                        CheckboxList::make('channels')
+                            ->label('Delivery Channels')
+                            ->options([
+                                'database' => 'Internal Dashboard (DB)',
+                                'mail' => 'Email Message',
+                            ])
+                            ->required()
+                            ->minItems(1)
+                            ->columns(2),
+
                         Select::make('target')
                             ->label('To whom to send')
                             ->options([
@@ -96,39 +111,42 @@ class SendNotification extends Page
     {
         $formData = $this->form->getState();
 
-        $notification = Notification::make()
-            ->title($formData['title'])
-            ->body($formData['message'])
-            //->icon('heroicon-o-information-circle')
-            //->warning()
-        ;
+        // Creating the object of notification
+        $notification = new CustomUserNotification(
+            channels: $formData['channels'], // Passing the selected array of channels, for example ['database', 'mail']
+            title: $formData['title'],
+            message: $formData['message'],
+            type: $formData['notificationType'] ?? 'info',
+            icon: $formData['icon'] ?? 'heroicon-o-bell'
+        );
 
-        $type = $formData['notificationType'] ?? 'info';
-        $notification->$type();
-
-        $icon = $formData['icon'] ?? 'heroicon-o-bell';
-        $notification->icon($icon);
-
+        // The logic of determining recipients
         if ($formData['target'] === 'all') {
+            // Using LaravelNotification::send for mass sending, chunking 100 users each
             User::query()->chunk(100, function ($users) use ($notification) {
-                foreach ($users as $user) {
-                    $notification->sendToDatabase($user);
-                }
+                LaravelNotification::send($users, $notification);
             });
         } elseif ($formData['target'] === 'single') {
             $user = User::query()->find($formData['user_id']);
             if ($user) {
-                $notification->sendToDatabase($user);
+                $user->notify($notification);
             }
-        } elseif ( in_array($formData['target'], ['admin', 'moderator', 'author', 'user']) ) {
-            // Example for groups (roles or custom selections)
-            $users = User::query()->where('role', $formData['target'])->get();
-            foreach ($users as $user) {
-                $notification->sendToDatabase($user);
-            }
+        } elseif (in_array($formData['target'], ['admin', 'moderator', 'author', 'user'])) {
+            // Sending to a group of users with a specific role
+            User::query()->where('role', $formData['target'])
+                ->chunk(100, function ($users) use ($notification) {
+                    LaravelNotification::send($users, $notification);
+                });
         }
 
-        $this->form->fill([]);
-        Notification::make()->title('The notification has been sent successfully!')->success()->send();
+        // Clearing the form and show the standard popup window Filament
+        $this->form->fill([
+            'channels' => ['database'],
+        ]);
+
+        FilamentNotification::make()
+            ->title('The notification has been sent successfully!')
+            ->success()
+            ->send();
     }
 }

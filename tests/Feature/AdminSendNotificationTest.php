@@ -4,6 +4,8 @@ use App\Enum\NotificationTypes;
 use App\Enum\UserRole;
 use App\Filament\Pages\SendNotification;
 use App\Models\User;
+use App\Notifications\CustomUserNotification;
+use Illuminate\Support\Facades\Notification;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use function Pest\Livewire\livewire;
@@ -96,7 +98,7 @@ test('successfully sends notification to a single user', function () {
     $notificationData = $targetUser->notifications()->first()->data;
     expect($notificationData['title'])->toBe('Test notification')
         ->and($notificationData['body'])->toBe('Test notification to a single user')
-        ->and($notificationData['status'])->toBe('info')
+        ->and($notificationData['type'])->toBe('info')
         ->and($notificationData['icon'])->toBe('heroicon-o-user');
 });
 
@@ -147,8 +149,49 @@ test('successfully sends notifications to all users', function () {
     expect(\Illuminate\Support\Facades\DB::table('notifications')->count())->toBe(9);
 });
 
+test('can send custom themed emails to user groups via filament page', function () {
+    Notification::fake();
 
+    $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    $authors = User::factory()->count(3)->create(['role' => UserRole::AUTHOR]);
+    $this->actingAs($admin);
 
+    livewire(SendNotification::class)
+        ->fillForm([
+            'channels' => ['mail', 'database'], // both channels
+            'target' => 'author',               // send to authors
+            'title' => 'Critical System Alert',
+            'message' => 'This is a test danger notification message text.',
+            'notificationType' => 'danger',     // notification type (red colors)
+            'icon' => 'heroicon-o-exclamation-triangle',
+        ])
+        ->call('send')
+        ->assertHasNoFormErrors();
+
+    // Check that the email was sent to all authors
+    foreach ($authors as $author) {
+        Notification::assertSentTo(
+            $author, // email recipient
+            CustomUserNotification::class, // notification class
+            function (CustomUserNotification $notification, $channels) use ($author) {
+                // check that notification was sent to correct channels
+                $hasCorrectChannels = in_array('mail', $channels) && in_array('database', $channels);
+
+                // Generating a MailMessage object for a specific user to read the topic
+                $mailMessage = $notification->toMail($author);
+                $hasCorrectSubject = $mailMessage->subject === 'Critical System Alert';
+
+                // Checking the data that will go to the database (replaces the real record in the database)
+                $dbData = $notification->toArray($author);
+                $hasCorrectDbData = $dbData['title'] === 'Critical System Alert'
+                    && $dbData['body'] === 'This is a test danger notification message text.'
+                    && $dbData['type'] === 'danger';
+
+                return $hasCorrectChannels && $hasCorrectSubject && $hasCorrectDbData;
+            }
+        );
+    }
+});
 
 
 
