@@ -40,7 +40,11 @@ test('notification (comment answer): clicking Mark as read & Open button makes n
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $commentResponder->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $commentResponder->id,
+        'is_deleted' => false
+    ]);
 
     $user->notify(new CommentReplied($comment, $commentResponder));
     $notification = $user->unreadNotifications()->first();

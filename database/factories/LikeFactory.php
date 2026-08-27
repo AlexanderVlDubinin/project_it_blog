@@ -23,9 +23,11 @@ class LikeFactory extends Factory
         $createdAt = fake()->dateTimeBetween('-1 year', 'now');
 
         return [
-            // Selection a random user from the existing ones in the database
-            'user_id' => User::query()->inRandomOrder()->first()?->id ?? User::factory(),
-            'is_like' => fake()->boolean(67), // 67% chance of a like, 33% dislike
+            // The request will be executed only if the user_id is not explicitly passed when calling the factory
+            'user_id' => fn () => User::query()->first()?->id ?? User::factory(),
+            'likeable_id' => null,  // It must be transmitted through status
+            'likeable_type' => null, // It must be transmitted through status
+            'is_like' => fake()->boolean(67),
             'created_at' => $createdAt,
             'updated_at' => $createdAt
         ];

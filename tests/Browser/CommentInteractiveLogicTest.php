@@ -19,7 +19,11 @@ test('reply to post comment', function () {
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $commentAuthor->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $commentAuthor->id,
+        'is_deleted' => false
+    ]);
     $this->actingAs($user);
 
     visit(route('posts.show', $post))
@@ -82,7 +86,11 @@ test('user editing his own post comment', function () {
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $commentAuthor->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $commentAuthor->id,
+        'is_deleted' => false
+    ]);
     $this->actingAs($commentAuthor);
 
     visit(route('posts.show', $post))
@@ -148,8 +156,17 @@ test('show/hide admin action window and toggles custom reason input', function (
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $commentAuthor->id, 'parent_id' => null, 'is_deleted' => false]);
-    $comment1 = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id, 'parent_id' => $comment->id, 'is_deleted' => false]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $commentAuthor->id,
+        'parent_id' => null,
+        'is_deleted' => false]);
+    $comment1 = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $user->id,
+        'parent_id' => $comment->id,
+        'is_deleted' => false
+    ]);
     $this->actingAs($admin);
 
     visit(route('posts.show', $post))

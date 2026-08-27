@@ -131,10 +131,10 @@ test('authenticated user can not see image block in post details if no image', f
     $author = User::factory()->create([
         'role' => UserRole::AUTHOR
     ]);
-    $post = Post::factory()->create([
+    $post = Post::factory()->withoutImage()->create([
         'is_published' => true,
         'user_id' => $author->id,
-        'image' => null,
+        //'image' => null, // or use withoutImage() factory state
     ]);
 
     $response = $this->get(route('posts.show', $post));
@@ -344,8 +344,18 @@ test('renders comments in a tree structure and child comments are rendered with 
     $this->actingAs(User::factory()->create());
 
     // Creating a parent comment and a reply to it
-    $parentComment = Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Parent Text']);
-    $childComment = Comment::factory()->create(['post_id' => $post->id, 'parent_id' => $parentComment->id, 'body' => 'Child Text']);
+    $parentComment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'parent_id' => null,
+        'body' => 'Parent Text',
+        'is_deleted' => false
+    ]);
+    $childComment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'parent_id' => $parentComment->id,
+        'body' => 'Child Text',
+        'is_deleted' => false
+    ]);
 
     $response = $this->get(route('posts.show', $post));
 
@@ -376,11 +386,26 @@ test('renders deeply nested (parent-child-grandchild) comments in correct tree s
         'user_id' => $author->id,
     ]);
     // Level 1: Root comment
-    $parent = Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Level 1: Root']);
+    $parent = Comment::factory()->create([
+        'post_id' => $post->id,
+        'parent_id' => null,
+        'body' => 'Level 1: Root',
+        'is_deleted' => false
+    ]);
     // Level 2: Answer for root
-    $child = Comment::factory()->create(['post_id' => $post->id, 'parent_id' => $parent->id, 'body' => 'Level 2: Child']);
+    $child = Comment::factory()->create([
+        'post_id' => $post->id,
+        'parent_id' => $parent->id,
+        'body' => 'Level 2: Child',
+        'is_deleted' => false
+    ]);
     // Level 3: Answer for answer (Grandchild)
-    $grandchild = Comment::factory()->create(['post_id' => $post->id, 'parent_id' => $child->id, 'body' => 'Level 3: Grandchild']);
+    $grandchild = Comment::factory()->create([
+        'post_id' => $post->id,
+        'parent_id' => $child->id,
+        'body' => 'Level 3: Grandchild',
+        'is_deleted' => false
+    ]);
     $this->actingAs(User::factory()->create());
 
     $response = $this->get(route('posts.show', $post));
@@ -401,17 +426,18 @@ test('root comments are displayed in descending chronological order', function (
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    //Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Comment #5', 'created_at' => now()->subMinutes(5)]);
-    //Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Comment #4', 'created_at' => now()->subMinutes(4)]);
-    //Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Comment #3', 'created_at' => now()->subMinutes(3)]);
-    //Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Comment #2', 'created_at' => now()->subMinutes(2)]);
-    //Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Comment #1', 'created_at' => now()->subMinutes(1)]);
+    //Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Comment #5', 'created_at' => now()->subMinutes(5), 'is_deleted' => false]);
+    //Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Comment #4', 'created_at' => now()->subMinutes(4), 'is_deleted' => false]);
+    //Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Comment #3', 'created_at' => now()->subMinutes(3), 'is_deleted' => false]);
+    //Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Comment #2', 'created_at' => now()->subMinutes(2), 'is_deleted' => false]);
+    //Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'Comment #1', 'created_at' => now()->subMinutes(1), 'is_deleted' => false]);
     for ($index=5; $index >= 1; $index--) {
         Comment::factory()->create([
             'post_id' => $post->id,
             'parent_id' => null,
             'body' => 'Comment #'.$index,
-            'created_at' => now()->subMinutes($index)
+            'created_at' => now()->subMinutes($index),
+            'is_deleted' => false
         ]);
     }
     $this->actingAs(User::factory()->create());
@@ -454,14 +480,16 @@ test('if there are less than 5 root comments, it does not display pagination, ot
         'post_id' => $post->id,
         'parent_id' => null,
         'body' => 'Oldest Root Comment',
-        'created_at' => now()->subDays(2)
+        'created_at' => now()->subDays(2),
+        'is_deleted' => false
     ]);
 
     // Creating 5 more fresh root comments (they will occupy the 1st page)
     $freshComments = Comment::factory()->count(5)->create([
         'post_id' => $post->id,
         'parent_id' => null,
-        'created_at' => now()
+        'created_at' => now(),
+        'is_deleted' => false
     ]);
 
     $response = $this->get(route('posts.show', $post));
@@ -486,11 +514,17 @@ test('child comments are exempt from root pagination limits', function () {
         'user_id' => $author->id,
     ]);
     // Creating 1 root comment
-    $parent = Comment::factory()->create(['post_id' => $post->id, 'parent_id' => null, 'body' => 'The Only Root']);
+    $parent = Comment::factory()->create([
+        'post_id' => $post->id,
+        'parent_id' => null,
+        'body' => 'The Only Root',
+        'is_deleted' => false
+    ]);
     // Creating 6 child responses (more than the pagination limit of 5)
     $children = Comment::factory()->count(6)->create([
         'post_id' => $post->id,
-        'parent_id' => $parent->id
+        'parent_id' => $parent->id,
+        'is_deleted' => false
     ]);
     $this->actingAs(User::factory()->create());
 
@@ -520,9 +554,19 @@ test('does not leak comments from other posts', function () {
         'user_id' => $author->id,
     ]);
     // Current post comment
-    $commentA = Comment::factory()->create(['post_id' => $postA->id, 'parent_id' => null, 'body' => 'Comment for Post A']);
+    $commentA = Comment::factory()->create([
+        'post_id' => $postA->id,
+        'parent_id' => null,
+        'body' => 'Comment for Post A',
+        'is_deleted' => false
+    ]);
     // Another post comment
-    $commentB = Comment::factory()->create(['post_id' => $postB->id, 'parent_id' => null, 'body' => 'Comment for Post B']);
+    $commentB = Comment::factory()->create([
+        'post_id' => $postB->id,
+        'parent_id' => null,
+        'body' => 'Comment for Post B',
+        'is_deleted' => false
+    ]);
     $this->actingAs(User::factory()->create());
 
     $response = $this->get(route('posts.show', $postA)); // View Post A
@@ -542,7 +586,11 @@ test('sends CommentReplied notification to parent comment author with custom dat
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $parentComment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $parentAuthor->id]);
+    $parentComment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $parentAuthor->id,
+        'is_deleted' => false
+    ]);
 
     // Reply to the parent comment
     $this->actingAs($replyAuthor)->post(route('comments.store', $post), [
@@ -572,7 +620,11 @@ test('does not send notification if user somehow replies to their own comment', 
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $parentComment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
+    $parentComment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $user->id,
+        'is_deleted' => false
+    ]);
 
     // user answers their own comment
     $this->actingAs($user)->post(route('comments.store', $post), [
@@ -594,7 +646,12 @@ test('displays the name of the comment author and correct date', function () {
         'user_id' => $author->id,
         'deleted_at' => null,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id, 'created_at' => now()->subMonths(2)]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $user->id,
+        'created_at' => now()->subMonths(2),
+        'is_deleted' => false
+    ]);
     $this->actingAs($user);
 
     $response = $this->get(route('posts.show', $post));
@@ -622,7 +679,11 @@ test('displays Anonymous if comment author account is deleted', function () {
         'is_published' => true,
         'user_id' => $postAuthor->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => null]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => null,
+        'is_deleted' => false
+    ]);
     $this->actingAs(User::factory()->create());
 
     $response = $this->get(route('posts.show', $post));
@@ -647,7 +708,10 @@ test('renders correct rating value and styles for 0 rating', function () {
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'is_deleted' => false
+    ]);
     $usersReactedToComments = User::factory()->count(4)->create();
     // Imitate 2 likes and 2 dislike (rating 0)
     $comment->reactions()->createMany([
@@ -678,7 +742,10 @@ test('renders correct rating value and styles for positive rating', function () 
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'is_deleted' => false
+    ]);
     $usersReactedToComments = User::factory()->count(4)->create();
     // Imitate 3 likes and 1 dislike (rating +2)
     $comment->reactions()->createMany([
@@ -709,7 +776,10 @@ test('renders correct rating value and styles for negative rating', function () 
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'is_deleted' => false
+    ]);
     $usersReactedToComments = User::factory()->count(4)->create();
     // Imitate 1 likes and 3 dislike (rating -2)
     $comment->reactions()->createMany([
@@ -740,7 +810,10 @@ test('renders like/dislike icons not filled and with currentColor if current use
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'is_deleted' => false
+    ]);
     $usersReactedToComments = User::factory()->count(4)->create();
     $comment->reactions()->createMany([
         ['user_id' => $usersReactedToComments[0]->id, 'is_like' => true],
@@ -782,7 +855,10 @@ test('renders like icon filled green if current user has reacted (dislike - not 
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'is_deleted' => false
+    ]);
     $usersReactedToComments = User::factory()->count(3)->create();
     $comment->reactions()->createMany([
         ['user_id' => $user->id, 'is_like' => true],
@@ -823,7 +899,10 @@ test('renders dislike icons filled red if current user has reacted (like - not f
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'is_deleted' => false
+    ]);
     $usersReactedToComments = User::factory()->count(3)->create();
     $comment->reactions()->createMany([
         ['user_id' => $usersReactedToComments[0]->id, 'is_like' => true],
@@ -857,7 +936,9 @@ test('renders dislike icons filled red if current user has reacted (like - not f
 
 test('authenticated user can like a comment when no reaction exists', function () {
     $user = User::factory()->create();
-    $comment = Comment::factory()->create();
+    $comment = Comment::factory()->create([
+        'is_deleted' => false
+    ]);
 
     $this->actingAs($user);
 
@@ -882,7 +963,9 @@ test('authenticated user can like a comment when no reaction exists', function (
 
 test('authenticated user removes his like by clicking it again', function () {
     $user = User::factory()->create();
-    $comment = Comment::factory()->create();
+    $comment = Comment::factory()->create([
+        'is_deleted' => false
+    ]);
 
     // Create existing like of this user
     Like::factory()->forComment($comment)->create([
@@ -911,7 +994,9 @@ test('authenticated user removes his like by clicking it again', function () {
 
 test('authenticated user switches reaction from dislike to like', function () {
     $user = User::factory()->create();
-    $comment = Comment::factory()->create();
+    $comment = Comment::factory()->create([
+        'is_deleted' => false
+    ]);
 
     // Step 1: The user INITIALLY has a DISLIKE
     Like::factory()->forComment($comment)->create([
@@ -1012,7 +1097,11 @@ test('regular users can not see admin actions button and is denied soft deleting
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $anotherUser->id, 'is_deleted' => false]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $anotherUser->id,
+        'is_deleted' => false
+    ]);
     $this->actingAs($user);
 
     $response = $this->get(route('posts.show', $post));
@@ -1041,7 +1130,11 @@ test('admin can see admin actions button and is able to soft deleting comments',
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id, 'is_deleted' => false]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $user->id,
+        'is_deleted' => false
+    ]);
     $this->actingAs($admin);
 
     $response = $this->get(route('posts.show', $post));

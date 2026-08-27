@@ -25,74 +25,58 @@ class CommentFactory extends Factory
     {
         // In 5% of cases, the comment will be deleted by the admin.
         $isDeleted = fake()->boolean(5);
-
-        // Base creation date
-        $createdAt = fake()->dateTimeBetween('-1 year', 'now');
-
         $deletionReasons = CommentDeletionReason::labels();
         $deletionReasons[CommentDeletionReason::OTHER->value] = 'Some custom reason';
 
         return [
             'body' => fake()->paragraph(2),
-            'parent_id' => null, // By default, the root
-            'post_id' => Post::query()->inRandomOrder()->first()?->id ?? Post::factory(),
-            'user_id' => fake()->boolean(90) // 10% anonymous
-                ? (User::query()->inRandomOrder()->first()?->id ?? User::factory())
+            'parent_id' => null,
+            // Using closures so that requests are executed ONLY if the id is not passed externally
+            'post_id' => fn () => Post::query()->first()?->id ?? Post::factory(),
+            'user_id' => fn () => fake()->boolean(90)
+                ? (User::query()->first()?->id ?? User::factory())
                 : null,
             'is_deleted' => $isDeleted,
             'deletion_reason' => $isDeleted ? fake()->randomElement($deletionReasons) : null,
-//            'deletion_reason' => $isDeleted ? fake()->randomElement([
-//                CommentDeletionReason::SPAM->value,
-//                CommentDeletionReason::PROFANITY->value,
-//                CommentDeletionReason::FLOOD->value,
-//                CommentDeletionReason::INSULTS->value,
-//                CommentDeletionReason::RULE_VIOLATION->value,
-//                'Some custom reason',
-//            ]) : null,
-            'created_at' => $createdAt,
-            'updated_at' => $createdAt, // By default, the dates match (the comment was NOT edited)
+            // Basic date stubs (will be overwritten via states)
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 
     /**
-     * Status for child comments
+     * The status for the root comment of the post, taking into account its creation date.
      */
-    public function child(int $parentId, int $postId, \DateTimeInterface $parentCreatedAt): static
+    public function rootForPost(int $postId, \DateTimeInterface $postCreatedAt): static
     {
-        // The response date must be later than the parent's date (but not too much), but before the current moment.
-        // 1. Parent's date creation
-        $parentDate = Carbon::parse($parentCreatedAt);
+        $createdAt = fake()->dateTimeBetween($postCreatedAt, 'now');
+        $updatedAt = fake()->boolean(15) ? fake()->dateTimeBetween($createdAt, 'now') : $createdAt;
 
-        // 2. Count time max limit (+2 weeks)
-        $timeMaxLimit = $parentDate->copy()->addWeeks(2);
-
-        // 3. Choose which will come earlier: time max limit or the current moment (now)
-        $maxDate = $timeMaxLimit->isFuture() ? 'now' : $timeMaxLimit;
-
-        // 4. Generating a date in the correct range
-        $childCreatedAt = fake()->dateTimeBetween($parentCreatedAt, $maxDate);
-
-        return $this->state(fn (array $attributes) => [
-            'parent_id' => $parentId,
-            'post_id' => $postId, // The answer should belong to the same post.
-            'created_at' => $childCreatedAt,
-            'updated_at' => $childCreatedAt, // Initially equal to the new creation number
+        return $this->state([
+            'post_id' => $postId,
+            'parent_id' => null,
+            'created_at' => $createdAt,
+            'updated_at' => $updatedAt,
         ]);
     }
 
     /**
-     * Comment editing is simulated
+     * Status for child comments.
      */
-    public function edited(): static
+    public function child(int $parentId, int $postId, \DateTimeInterface $parentCreatedAt): static
     {
-        return $this->state(function (array $attributes) {
-            // Taking the created_at already calculated in the factory or seeder
-            $createdAt = $attributes['created_at'];
+        $parentDate = Carbon::parse($parentCreatedAt);
+        $timeMaxLimit = $parentDate->copy()->addWeeks(2);
+        $maxDate = $timeMaxLimit->isFuture() ? 'now' : $timeMaxLimit;
 
-            return [
-                // Updating to a date strictly LATER THAN the creation date
-                'updated_at' => fake()->dateTimeBetween($createdAt, 'now'),
-            ];
-        });
+        $childCreatedAt = fake()->dateTimeBetween($parentCreatedAt, $maxDate);
+        $childUpdatedAt = fake()->boolean(15) ? fake()->dateTimeBetween($childCreatedAt, 'now') : $childCreatedAt;
+
+        return $this->state([
+            'parent_id' => $parentId,
+            'post_id' => $postId,
+            'created_at' => $childCreatedAt,
+            'updated_at' => $childUpdatedAt,
+        ]);
     }
 }

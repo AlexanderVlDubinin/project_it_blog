@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Comment;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
@@ -15,40 +16,40 @@ class CommentSeeder extends Seeder
      */
     public function run(): void
     {
-        $posts = Post::all();
+        // Loading the IDs of all users once into memory (excluding N+1)
+        $userIds = User::query()->pluck('id');
 
-        /*
-        if ($posts->isEmpty()) {
-            $posts = Post::factory(10)->create();
+        if ($userIds->isEmpty()) {
+            return;
         }
-        */
 
-        foreach ($posts as $post) {
-            // 1. Creating root comments for a specific post
-            $rootComments = Comment::factory(fake()->numberBetween(3, 7))
-                ->make([
-                    'post_id' => $post->id,
-                    'parent_id' => null,
-                ])->map(function ($comment) use ($post) {
-                    $comment->created_at = fake()->dateTimeBetween($post->created_at, 'now');
-                    // With a 15% chance, mark the root comment as edited.
-                    if (fake()->boolean(15)) {
-                        $comment->updated_at = fake()->dateTimeBetween($comment->created_at, 'now');
-                    }
-                    $comment->save();
-                    return $comment;
-                });
+        // Using lazy() to avoid overloading memory if there are thousands of posts.
+        Post::query()->lazy()->each(function (Post $post) use ($userIds) {
 
-            // 2. Starting the generation of the response chain (maximum depth, for example, 3)
-            // Turning the array back into a Collection for recursion to work.
-            $this->createRepliesRecursively(collect($rootComments), $post->id, 1, 3);
-        }
+            $rootCommentsCount = fake()->numberBetween(4, 12);
+            $rootComments = collect();
+
+            // Creating root comments in a bunch at once (one insert request)
+            for ($i = 0; $i < $rootCommentsCount; $i++) {
+                $rootComments->push(
+                    Comment::factory()
+                        ->rootForPost($post->id, $post->created_at)
+                        ->create([
+                            // A random user from an in-memory collection with no DATABASE queries
+                            'user_id' => fake()->boolean(90) ? $userIds->random() : null,
+                        ])
+                );
+            }
+
+            // Running recursion to generate a chain of responses
+            $this->createRepliesRecursively($rootComments, $post->id, $userIds, 1, 3);
+        });
     }
 
     /**
      * A recursive method for creating tree responses
      */
-    private function createRepliesRecursively(Collection $parentComments, int $postId, int $currentDepth, int $maxDepth): void
+    private function createRepliesRecursively(Collection $parentComments, int $postId, Collection $userIds, int $currentDepth, int $maxDepth): void
     {
         if ($currentDepth > $maxDepth) {
             return;
@@ -58,22 +59,21 @@ class CommentSeeder extends Seeder
             // There is a 20% chance that the comment will have answers.
             if (fake()->boolean(20)) {
 
-                // Generating from 1 to 3 responses to this particular comment (with parent date $parent->created_at).
-                $replies = Comment::factory(fake()->numberBetween(1, 3))
-                    ->child($parent->id, $postId, $parent->created_at)
-                    ->make()
-                    ->map(function ($reply) use ($parent) {
-                        $reply->created_at = fake()->dateTimeBetween($parent->created_at, 'now');
-                        // With a 15% chance, mark the child comment as edited.
-                        if (fake()->boolean(15)) {
-                            $reply->updated_at = fake()->dateTimeBetween($reply->created_at, 'now');
-                        }
-                        $reply->save();
-                        return $reply;
-                    });
+                $repliesCount = fake()->numberBetween(1, 3);
+                $replies = collect();
 
-                // Recursively moving to the next level of nesting for created responses
-                $this->createRepliesRecursively(collect($replies), $postId, $currentDepth + 1, $maxDepth);
+                for ($i = 0; $i < $repliesCount; $i++) {
+                    $replies->push(
+                        Comment::factory()
+                            ->child($parent->id, $postId, $parent->created_at)
+                            ->create([
+                                'user_id' => fake()->boolean(90) ? $userIds->random() : null,
+                            ])
+                    );
+                }
+
+                // Recursive transition to the next level of nesting
+                $this->createRepliesRecursively($replies, $postId, $userIds, $currentDepth + 1, $maxDepth);
             }
         }
     }

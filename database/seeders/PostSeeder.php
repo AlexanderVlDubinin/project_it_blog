@@ -14,16 +14,17 @@ class PostSeeder extends Seeder
      */
     public function run(): void
     {
-        $authors = User::query()->where('role', 'author')->get();
-
-
-        $authors->each(function ($author) {
-            Post::factory()
-                ->count(fake()->numberBetween(1, 10))
-                ->create([
-                    'user_id' => $author->id,
-                ]);
-        });
+        // Using lazy() saves memory with a large number of authors
+        User::query()
+            ->where('role', 'author')
+            ->lazy()
+            ->each(function (User $author) {
+                Post::factory()
+                    ->count(fake()->numberBetween(2, 12))
+                    ->create([
+                        'user_id' => $author->id,
+                    ]);
+            });
 
         /*
         $userIds = User::query()->pluck('id')->toArray();

@@ -14,6 +14,9 @@ use Illuminate\Support\Str;
  */
 class PostFactory extends Factory
 {
+    // Static cache for image files (for not reading disk every time)
+    protected static ?array $cachedFiles = null;
+
     /**
      * Define the model's default state.
      *
@@ -21,38 +24,69 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
-        $sourcePath = public_path('images/posts_images');
-        $targetFolder = 'posts';
-
-        $newFilename = $targetFolder . '/' . Str::random(12) . '.jpg';
-
-        if (File::exists($sourcePath) && $files = File::files($sourcePath)) { // Gets an array of Symfony\Component\HttpFoundation\File\File objects
-            $randomFile = fake()->randomElement($files);
-            $imageContent = File::get($randomFile->getRealPath());
-            Storage::disk('public')->put($newFilename, $imageContent);
-            // just string file paths
-            //$filePaths = array_map(fn($file) => $file->getPathname(), $files);
-        } else {
-            $newFilename = null;
-        }
-
         $createdAt = fake()->dateTimeBetween('-1 year', 'now');
-        if (fake()->boolean(25)) {
-            $updatedAt = fake()->dateTimeBetween($createdAt, 'now');
-        } else {
-            $updatedAt = $createdAt;
-        }
+        $updatedAt = fake()->boolean(25) ? fake()->dateTimeBetween($createdAt, 'now') : $createdAt;
 
         return [
             'title' => fake()->sentence(5),
-            'content' => collect(range(4, mt_rand(8, 14)))
-                ->map(fn($i) => fake()->paragraph(5, 10))
-                ->implode("\n\n"), // collect - multiparagraph text
+            'content' => implode("\n\n", array_map(
+                fn() => fake()->paragraph(5, 10),
+                range(1, mt_rand(4, 14))
+            )),
             'is_published' => fake()->boolean(80),
-            'image' => $newFilename,
+            'image' => 'pending', // Fill it in afterCreating, if the files exist / fake()->boolean(75) ? 'pending' : null
             'created_at' => $createdAt,
-            'updated_at' => $updatedAt
+            'updated_at' => $updatedAt,
         ];
+    }
+
+    /**
+     * Special Factory state (for tests): without image.
+     */
+    public function withoutImage(): static
+    {
+        return $this->state([
+            'image' => null,
+        ]);
+    }
+
+    /**
+     * Factory setup: image copying logic.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Post $post) {
+            // If the image is null in definition or test, do nothing
+            if ($post->image === null) {
+                return;
+            }
+
+            $sourcePath = public_path('images/posts_images');
+
+            // Scanning the directory once for the entire siding cycle
+            if (self::$cachedFiles === null) {
+                self::$cachedFiles = File::exists($sourcePath) ? File::files($sourcePath) : [];
+            }
+
+            if (!empty(self::$cachedFiles)) {
+                $randomFile = fake()->randomElement(self::$cachedFiles);
+                $targetFolder = 'posts';
+                $newFilename = $targetFolder . '/' . Str::random(12) . '.' . $randomFile->getExtension();
+
+                // Coping file
+                Storage::disk('public')->put($newFilename, File::get($randomFile->getRealPath()));
+
+                // Updating the model without changing timestamps (since they are already generated in definition)
+                $post->timestamps = false;
+                $post->update(['image' => $newFilename]);
+                $post->timestamps = true;
+            } else {
+                // If there are no files, set the image to null
+                $post->timestamps = false;
+                $post->update(['image' => null]);
+                $post->timestamps = true;
+            }
+        });
     }
 
     /*

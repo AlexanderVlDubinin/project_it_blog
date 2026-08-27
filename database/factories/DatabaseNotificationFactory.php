@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
+// FOR TESTS
 class DatabaseNotificationFactory extends Factory
 {
     protected $model = DatabaseNotification::class;

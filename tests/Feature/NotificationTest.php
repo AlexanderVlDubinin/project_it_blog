@@ -42,7 +42,11 @@ test('authenticated user with unread notifications', function () {
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $commentResponder->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $commentResponder->id,
+        'is_deleted' => false
+    ]);
     $this->actingAs($user);
 
     // unread notifications
@@ -97,8 +101,16 @@ test('authenticated user with different notifications', function () {
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment1 = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $commentResponder->id]);
-    $comment2 = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $commentResponder->id]);
+    $comment1 = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $commentResponder->id,
+        'is_deleted' => false
+    ]);
+    $comment2 = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $commentResponder->id,
+        'is_deleted' => false
+    ]);
     $this->actingAs($commentResponder);
 
     $user->notify(new CommentReplied($comment1, $commentResponder));
@@ -215,7 +227,11 @@ test('authenticated user with notification filtering by type', function () {
         'is_published' => true,
         'user_id' => $author->id,
     ]);
-    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $commentResponder->id]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $commentResponder->id,
+        'is_deleted' => false
+    ]);
     $this->actingAs($commentResponder);
 
     $user->notify(new CommentReplied($comment, $commentResponder)); // comment reply / blue notification
