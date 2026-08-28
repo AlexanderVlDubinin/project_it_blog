@@ -15,7 +15,7 @@ class SoftDeleteCommentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return ($this->user() && in_array($this->user()->role, [UserRole::MODERATOR, UserRole::ADMIN]));
+        return (bool)$this->user();
     }
 
     /**

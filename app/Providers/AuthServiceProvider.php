@@ -52,18 +52,6 @@ class AuthServiceProvider extends ServiceProvider
                 || $user->id === $post->user_id;
         });
 
-        Gate::define('change-comment-action', function (User $user, Comment $comment) {
-            $commentOwner = $comment->user;
-
-            // only admin can change admins comment
-            if ($commentOwner->role === UserRole::ADMIN) {
-                return $user->role === UserRole::ADMIN;
-            }
-
-            // moderator can change other comments
-            return $user->role === UserRole::MODERATOR;
-        });
-
         Gate::define('owner-action', function (User $user, Post $post) {
             return $user->id === $post->user_id;
         });

@@ -1,5 +1,6 @@
 <div class="admin-moderation-zone {{ $comment->is_deleted ? 'py-1' : 'mt-2.5 p-2.5' }}  /*border border-dashed border-gray-500 rounded*/">
     @if($comment->is_deleted)
+        @can('restore', $comment)
         {{-- Restore --}}
         <x-dropdown-link href="#"
                          data-url="{{ route('admin.comments.restore', $comment->id) }}"
@@ -13,7 +14,9 @@
                 <span class="w-full">Restore Comment</span>
             </div>
         </x-dropdown-link>
+        @endcan
 
+        @can('forceDelete', $comment)
         {{-- Delete --}}
         <x-dropdown-link href="#"
                          data-url="{{ route('admin.comments.destroy', $comment) }}"
@@ -27,6 +30,7 @@
                 <span class="w-full">Complete Delete</span>
             </div>
         </x-dropdown-link>
+        @endcan
     @else
         {{-- SoftDelete form --}}
         <form action="{{ route('admin.comments.delete', $comment) }}" method="POST" class="m-0 {{ $comment->is_deleted }}">
@@ -34,6 +38,7 @@
             @method('PUT')
 
             <div class="flex gap-2.5 items-center flex-wrap">
+                @if($comment->user_id !== auth()->user()->id)
                 <!-- The reason selection selector -->
                 <div class="flex-1 w-[50vw] min-w-50">
                     <select
@@ -45,17 +50,25 @@
                     >
                         <option value="">-- Reason for deletion --</option>
                         @foreach(\App\Enum\CommentDeletionReason::labels() as $value => $label)
-                            <option value="{{ $value }}">{{ $label }}</option>
+                            @if($value !== \App\Enum\CommentDeletionReason::SELF_DELETE->value)
+                                <option value="{{ $value }}">{{ $label }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
+                @else
+                    <input type="hidden" name="reason_key" value="{{ \App\Enum\CommentDeletionReason::SELF_DELETE->value }}" readonly>
+                @endIf
 
+                @can('delete', $comment)
                 <!-- Confirmation button -->
                 <button type="submit" data-test="soft-delete-submit-btn" class="bg-red-700 text-white border-none py-2 px-3 rounded cursor-pointer text-sm">
                     Delete comment
                 </button>
+                @endcan
             </div>
 
+            @if($comment->user_id !== auth()->user()->id)
             <!-- Hidden field for manual input (shown when "other" is selected) -->
             <div id="custom_reason_container_{{ $comment->id }}" class="hidden mt-2">
                 <input
@@ -67,6 +80,7 @@
                     class="w-full py-1 px-2 border border-gray-300 bg-white dark:bg-gray-800 rounded text-sm"
                 >
             </div>
+            @endIf
         </form>
 
         <script>

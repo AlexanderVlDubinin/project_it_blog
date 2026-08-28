@@ -59,12 +59,7 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment): bool
     {
-        $commentOwner = $comment->user;
-        if ($commentOwner->role === UserRole::ADMIN) {
-            return $user->role === UserRole::ADMIN;
-        }
-
-        return $user->role === UserRole::MODERATOR;
+        return $this->isStaff($user, $comment) || $user->id === $comment->user_id;
     }
 
     /**
@@ -72,12 +67,7 @@ class CommentPolicy
      */
     public function restore(User $user, Comment $comment): bool
     {
-        $commentOwner = $comment->user;
-        if ($commentOwner->role === UserRole::ADMIN) {
-            return $user->role === UserRole::ADMIN;
-        }
-
-        return $user->role === UserRole::MODERATOR;
+        return $this->isStaff($user, $comment);
     }
 
     /**
@@ -85,11 +75,23 @@ class CommentPolicy
      */
     public function forceDelete(User $user, Comment $comment): bool
     {
+        return $this->isStaff($user, $comment);
+    }
+
+    private function isStaff(User $user, Comment $comment): bool
+    {
         $commentOwner = $comment->user;
+
         if ($commentOwner->role === UserRole::ADMIN) {
             return $user->role === UserRole::ADMIN;
         }
 
         return $user->role === UserRole::MODERATOR;
+    }
+
+    public function changeCommentAction(User $user, Comment $comment): bool
+    {
+        // user can interact if they are an author, moderator, or admin
+        return $this->isStaff($user, $comment) || $user->id === $comment->user_id;
     }
 }

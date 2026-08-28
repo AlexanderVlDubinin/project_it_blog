@@ -41,10 +41,16 @@ Route::middleware('auth')->group(function () {
         Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
 
         // admin actions for comments
-        Route::middleware('role:admin,moderator')->prefix('admin')->name('admin.')->group(function () {
-            Route::put('/comments/{comment}/delete', [CommentController::class, 'delete'])->name('comments.delete');
-            Route::put('/comments/{comment}/restore', [CommentController::class, 'restore'])->name('comments.restore');
-            Route::delete('/comments/{comment}/destroy', [CommentController::class, 'forceDelete'])->name('comments.destroy');
+        Route::prefix('admin')->name('admin.')->group(function () {
+            Route::put('/comments/{comment}/delete', [CommentController::class, 'delete'])
+                ->middleware('can:delete,comment')
+                ->name('comments.delete');
+            Route::put('/comments/{comment}/restore', [CommentController::class, 'restore'])
+                ->middleware('can:restore,comment')
+                ->name('comments.restore');
+            Route::delete('/comments/{comment}/destroy', [CommentController::class, 'forceDelete'])
+                ->middleware('role:admin,moderator')
+                ->name('comments.destroy');
         });
 
         // Notifications

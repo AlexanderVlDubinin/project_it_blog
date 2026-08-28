@@ -81,9 +81,9 @@ class CommentController extends Controller
     {
         $this->authorize('delete', $comment);
 
-        $softDeleteComment($request, $comment, $request->validated());
+        $message = $softDeleteComment($request, $comment, $request->validated());
 
-        return back()->with('success', 'The comment was hidden by the moderator.');
+        return back()->with('success', $message);
     }
 
     public function restore(Comment $comment, RestoreComment $restoreComment)
@@ -92,7 +92,7 @@ class CommentController extends Controller
 
         $restoreComment($comment);
 
-        return back()->with('success', 'The comment was restored by the moderator.');
+        return back()->with('success', 'The comment was successfully restored.');
     }
 
     /**

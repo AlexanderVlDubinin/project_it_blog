@@ -510,5 +510,23 @@ test('posts are eager loaded (user, tags, userReaction) with correct aggregation
         ->and($loadedPost->userReaction->is_like)->toBeTrue();
 });
 
+test('user can not see posts like part if it is not published', function () {
+    $this->actingAs(User::factory()->create(['role' => UserRole::ADMIN]));
+    $author = User::factory()->create([
+        'role' => UserRole::AUTHOR
+    ]);
+    $post = Post::factory()->withoutImage()->create([
+        'is_published' => false,
+        'user_id' => $author->id,
+    ]);
+
+    $response = $this->get(route('posts.index'));
+
+    $response->assertStatus(200)
+        ->assertSee($author->name)
+        ->assertDontSee('post-reaction-block')
+        ->assertSee($post->title);
+});
+
 
 

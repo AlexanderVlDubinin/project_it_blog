@@ -13,7 +13,8 @@
             </div>
 
             <div class="mt-2 flex items-center justify-between w-auto">
-                <div class="mr-4 reaction-block flex items-center gap-4 border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-800 rounded-lg px-2 py-1 text-gray-500 text-sm select-none" data-type="comment" data-id="{{ $comment->id }}">
+                @if(!$comment->is_deleted && $comment->user_id !== auth()->id())
+                <div class="mr-4 reaction-block comment-reaction-block flex items-center gap-4 border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-800 rounded-lg px-2 py-1 text-gray-500 text-sm select-none" data-type="comment" data-id="{{ $comment->id }}">
                     @php
                         $likes = $comment->likes_count ?? 0;
                         $dislikes = $comment->dislikes_count ?? 0;
@@ -57,6 +58,7 @@
                         </svg>
                     </button>
                 </div>
+                @endif
 
                 <!-- The answer is possible only on live comments -->
                 @if(!$comment->is_deleted && auth()->check() /*&& $comment->user_id*/)
@@ -82,6 +84,9 @@
                 @endif
 
                 @can('change-comment-action', $comment)
+                    @if($comment->is_deleted && $comment->user_id === auth()->id())
+                        {{-- DO NOT SHOW ANYTHING --}}
+                    @else
                     <div class="sm:flex sm:items-center sm:ms-2 ">
                         <x-dropdown align="right" width="auto" modal="true">
                             <x-slot name="trigger">
@@ -98,6 +103,7 @@
                             </x-slot>
                         </x-dropdown>
                     </div>
+                    @endif
                 @endcan
             </div>
         </div>

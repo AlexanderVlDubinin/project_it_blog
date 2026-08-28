@@ -39,7 +39,7 @@ test('authenticated author can view his own draft post', function () {
         ->assertSee('Draft');
 });
 
-test('authenticated user can not view any draft post', function () {
+test('authenticated user can not view not his own draft post', function () {
     $this->actingAs(User::factory()->create());
     $author = User::factory()->create([
         'role' => UserRole::AUTHOR
@@ -69,7 +69,7 @@ test('authenticated user can not view soft deleted post', function () {
 
     $response->assertStatus(404);
 });
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 test('authenticated user can see post details, author, tags and formatted date', function () {
     $users = User::factory()->count(10)->create();
     $user = $users[0];
@@ -207,6 +207,26 @@ test('authenticated user can not see red heart if he has not liked the post', fu
     expect($post->userReaction?->is_like)->toBeNull();
 });
 
+test('user can not see single post like part if it is not published', function () {
+    $this->actingAs(User::factory()->create(['role' => UserRole::ADMIN]));
+    $author = User::factory()->create([
+        'role' => UserRole::AUTHOR
+    ]);
+    $post = Post::factory()->withoutImage()->create([
+        'is_published' => false,
+        'user_id' => $author->id,
+    ]);
+
+    $response = $this->get(route('posts.show', $post));
+
+    $response->assertStatus(200)
+        ->assertViewIs('posts.show')
+        ->assertViewHas('post')
+        ->assertSee($author->name)
+        ->assertDontSee('post-reaction-block')
+        ->assertSee($post->title);
+});
+
 test('authenticated user can see comment form', function () {
     $this->actingAs(User::factory()->create());
     $author = User::factory()->create([
@@ -264,7 +284,7 @@ test('allows authenticated user to leave a comment', function () {
     ]);
 });
 
-test('authenticated user can not send a too short ot empty comment', function () {
+test('authenticated user can not send a too short or empty comment', function () {
     $user = User::factory()->create();
     $author = User::factory()->create([
         'role' => UserRole::AUTHOR
@@ -848,6 +868,7 @@ test('renders like/dislike icons not filled and with currentColor if current use
 
 test('renders like icon filled green if current user has reacted (dislike - not filled and with currentColor)', function () {
     $user = User::factory()->create();
+    $commentUser = User::factory()->create();
     $author = User::factory()->create([
         'role' => UserRole::AUTHOR
     ]);
@@ -857,6 +878,7 @@ test('renders like icon filled green if current user has reacted (dislike - not 
     ]);
     $comment = Comment::factory()->create([
         'post_id' => $post->id,
+        'user_id' => $commentUser->id,
         'is_deleted' => false
     ]);
     $usersReactedToComments = User::factory()->count(3)->create();
@@ -892,6 +914,7 @@ test('renders like icon filled green if current user has reacted (dislike - not 
 
 test('renders dislike icons filled red if current user has reacted (like - not filled and with currentColor)', function () {
     $user = User::factory()->create();
+    $commentUser = User::factory()->create();
     $author = User::factory()->create([
         'role' => UserRole::AUTHOR
     ]);
@@ -901,6 +924,7 @@ test('renders dislike icons filled red if current user has reacted (like - not f
     ]);
     $comment = Comment::factory()->create([
         'post_id' => $post->id,
+        'user_id' => $commentUser->id,
         'is_deleted' => false
     ]);
     $usersReactedToComments = User::factory()->count(3)->create();
@@ -932,6 +956,28 @@ test('renders dislike icons filled red if current user has reacted (like - not f
         ->assertDontSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600 text-green-600')
         ->assertSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600 text-red-600')
         ->assertSeeInOrder($commentLikeDislikeArray, false);
+});
+
+test('user can not see comment like part if comment is soft deleted', function () {
+    $user = User::factory()->create();
+    $author = User::factory()->create([
+        'role' => UserRole::AUTHOR
+    ]);
+    $post = Post::factory()->create([
+        'is_published' => true,
+        'user_id' => $author->id,
+    ]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'is_deleted' => true,
+    ]);
+    $this->actingAs($user);
+
+    $response = $this->get(route('posts.show', $post));
+
+    $response->assertStatus(200)
+        ->assertSee($post->title)
+        ->assertDontSee('comment-reaction-block');
 });
 
 test('authenticated user can like a comment when no reaction exists', function () {
@@ -1118,6 +1164,37 @@ test('regular users can not see admin actions button and is denied soft deleting
     expect($comment->fresh()->where('is_deleted', true)->first())->toBeNull(); // Comment not deleted
 });
 
+test('regular users can see admin actions button and is able to soft deleting his own comments', function () {
+    $user = User::factory()->create();
+    $author = User::factory()->create([
+        'role' => UserRole::AUTHOR
+    ]);
+    $post = Post::factory()->create([
+        'is_published' => true,
+        'user_id' => $author->id,
+    ]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $user->id,
+        'is_deleted' => false
+    ]);
+    $this->actingAs($user);
+
+    $response = $this->get(route('posts.show', $post));
+
+    $response->assertStatus(200)->assertSee('admin-actions-trigger-btn');
+    expect($comment->fresh()->where('is_deleted', true)->count())->toBe(0);
+
+    // Trying to send a deletion request
+    $response = $this->actingAs($user)
+        ->put(route('admin.comments.delete', $comment), [
+            'reason_key' => 'self_delete'
+        ]);
+
+    $response->assertDontSee('admin-actions-trigger-btn');
+    expect($comment->fresh()->where('is_deleted', true)->count())->toBe(1); // Comment deleted
+});
+
 test('admin can see admin actions button and is able to soft deleting comments', function () {
     $admin = User::factory()->create([
         'role' => UserRole::ADMIN
@@ -1152,6 +1229,41 @@ test('admin can see admin actions button and is able to soft deleting comments',
     expect($comment->fresh()->where('is_deleted', true)->count())->toBe(1);
 });
 
+test('regular users can not see admin actions button when his comment soft deleted & is denied restore and hard deleting', function () {
+    $user = User::factory()->create();
+    $author = User::factory()->create([
+        'role' => UserRole::AUTHOR
+    ]);
+    $post = Post::factory()->create([
+        'is_published' => true,
+        'user_id' => $author->id,
+    ]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $user->id,
+        'is_deleted' => true
+    ]);
+    $this->actingAs($user);
+
+    $response = $this->get(route('posts.show', $post));
+
+    $response->assertStatus(200)->assertDontSee('admin-actions-trigger-btn');
+    expect($comment->fresh()->where('is_deleted', true)->count())->toBe(1); // Comment deleted
+
+    // Trying to send a restore request (somehow)
+    $response = $this->actingAs($user)
+        ->put(route('admin.comments.restore', $comment));
+
+    $response->assertStatus(403);
+    expect($comment->fresh()->where('is_deleted', true)->count())->toBe(1); // Comment still deleted
+
+    // Trying to send a hard delete request (somehow)
+    $response = $this->actingAs($user)
+        ->delete(route('admin.comments.destroy', $comment));
+
+    $response->assertStatus(403);
+    expect($comment->fresh()->where('is_deleted', true)->count())->toBe(1); // Comment still soft deleted
+});
 
 
 

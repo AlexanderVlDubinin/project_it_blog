@@ -36,7 +36,8 @@
                     </div>
                 </div>
 
-                <div class="reaction-block flex items-center gap-2" data-type="post" data-id="{{ $post->id }}">
+                @if($post->is_published && $post->user_id !== auth()->id())
+                <div class="reaction-block post-reaction-block flex items-center gap-2" data-type="post" data-id="{{ $post->id }}">
                     @php $hasLiked = $post->userReaction?->is_like === true; @endphp
                     <button type="button"
                             class="js-reaction-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-200 border-gray-200 hover:bg-gray-50 text-gray-500 {{ $hasLiked ? 'bg-red-50 border-red-500 text-red-600' : '' }}"
@@ -52,6 +53,7 @@
                         <span class="js-likes-count font-medium text-sm">{{ $post->likes_count ?? 0 }}</span>
                     </button>
                 </div>
+                @endif
             </div>
 
             @if ($post->image)

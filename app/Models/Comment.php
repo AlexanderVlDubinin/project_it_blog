@@ -25,7 +25,11 @@ class Comment extends Model
             get: function (string $value) {
                 if ($this->is_deleted) {
                     return $this->deletion_reason
-                        ? "The message was deleted by the moderator. Reason: " . $this->deletion_reason
+                        ? (
+                            ($this->deletion_reason == 'Deleted by author')
+                            ? "User deleted his/her comment."
+                            : "The message was deleted by the moderator. Reason: " . $this->deletion_reason
+                        )
                         : "The message was deleted by the moderator.";
                 }
                 return $value;

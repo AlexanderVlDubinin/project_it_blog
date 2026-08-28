@@ -9,6 +9,7 @@ enum CommentDeletionReason: string
     case FLOOD = 'flood / offtop';
     case INSULTS = 'insults';
     case RULE_VIOLATION = 'rule_violation';
+    case SELF_DELETE = 'self_delete';
     case OTHER = 'other';
 
     // Вспомогательный метод для вывода в выпадающий список
@@ -20,6 +21,7 @@ enum CommentDeletionReason: string
             self::FLOOD->value => 'Flood / Off-topic message',
             self::INSULTS->value => 'Insults / Aggression',
             self::RULE_VIOLATION->value => 'Rule violation',
+            self::SELF_DELETE->value => 'Deleted by author',
             self::OTHER->value => 'Other reason (specify manually)',
         ];
     }
