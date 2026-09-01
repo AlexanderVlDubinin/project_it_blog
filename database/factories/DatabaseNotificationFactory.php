@@ -21,7 +21,7 @@ class DatabaseNotificationFactory extends Factory
     {
         return [
             'id' => Str::uuid()->toString(),
-            'type' => 'Filament\Notifications\Notification',
+            'type' => 'App\Notifications\CustomUserNotification',
             'notifiable_type' => User::class,
             'notifiable_id' => User::factory(), // It will create a user if it hasn’t been passed.
             'data' => [
@@ -57,11 +57,15 @@ class DatabaseNotificationFactory extends Factory
     /**
      * Quick status for a read notification
      */
-    public function read($readAt = null): self
+    public function read($readAt = '=default='): self
     {
-        return $this->state(fn (array $attributes) => [
-            'read_at' => $readAt ?? now(),
-        ]);
+        return $this->state(function (array $attributes) use ($readAt) {
+            if ($readAt === '=default=') {
+                return ['read_at' => now()];
+            }
+
+            return ['read_at' => $readAt];
+        });
     }
 
     // Custom helper state for responding to comments.

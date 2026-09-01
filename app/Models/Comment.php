@@ -15,6 +15,14 @@ class Comment extends Model
     /** @use HasFactory<CommentFactory> */
     use HasFactory, HasReactions;
 
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
+
     /**
      * Dynamic control of the comment text.
      * If the comment is deleted, we print a stub instead of the original text.
