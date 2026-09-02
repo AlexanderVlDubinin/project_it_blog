@@ -24,10 +24,12 @@ class TagSeeder extends Seeder
         // array for pivot table (post_tag) data
         $pivotRecords = [];
 
+        // Assign tags to posts
         Post::query()
             ->select(['id', 'created_at', 'updated_at'])
             ->lazy(500) // load 500 posts at a time
             ->each(function ($post) use ($tagsPool, &$pivotRecords) {
+                // Randomly select 2-7 tags for each post
                 $randomTagIds = $tagsPool->random(fake()->numberBetween(2, 7))->pluck('id');
 
                 foreach ($randomTagIds as $tagId) {

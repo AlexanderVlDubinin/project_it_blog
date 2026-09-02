@@ -8,13 +8,17 @@ use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
+    /**
+     * Determine whether the user can perform any actions.
+     * Returns true for admin users (Admin can do anything), null for other users.
+     */
     public function before(User $user, string $ability): ?bool
     {
         if ($user->role === UserRole::ADMIN) {
             return true;
         }
 
-        return null; // Передает управление методам ниже для остальных ролей
+        return null; // Passes control to the methods below for the remaining roles
     }
 
     /**
@@ -22,6 +26,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
+        // moderators can view all users
         return $user->role === UserRole::MODERATOR;
     }
 
@@ -30,6 +35,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
+        // moderators can view all users
         return $user->role === UserRole::MODERATOR;
     }
 
@@ -38,6 +44,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
+        // moderators can create users
         return $user->role === UserRole::MODERATOR;
     }
 
@@ -50,6 +57,8 @@ class UserPolicy
         if ($user->role === UserRole::MODERATOR && $model->role === UserRole::ADMIN) {
             return false;
         }
+
+        // moderators can edit all users (except admin)
         return $user->role === UserRole::MODERATOR;
     }
 
@@ -58,7 +67,7 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return false;
+        return false; // False for all (except admin) users (no deletion allowed)
     }
 
     /**
@@ -66,6 +75,7 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
+        // moderators can restore all users
         return $user->role === UserRole::MODERATOR;
     }
 
@@ -74,6 +84,6 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model): bool
     {
-        return false;
+        return false; // False for all (except admin) users (no permanent deletion allowed)
     }
 }

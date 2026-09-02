@@ -68,7 +68,9 @@ class DatabaseNotificationFactory extends Factory
         });
     }
 
-    // Custom helper state for responding to comments.
+    /**
+     * Custom helper state for responding to comments.
+     */
     public function commentReply(int $postId, int $commentId): self
     {
         return $this->state(function (array $attributes) use ($postId, $commentId) {

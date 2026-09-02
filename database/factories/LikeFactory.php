@@ -27,13 +27,15 @@ class LikeFactory extends Factory
             'user_id' => fn () => User::query()->first()?->id ?? User::factory(),
             'likeable_id' => null,  // It must be transmitted through status
             'likeable_type' => null, // It must be transmitted through status
-            'is_like' => fake()->boolean(67),
+            'is_like' => fake()->boolean(67), // 67% of the time, the like is positive
             'created_at' => $createdAt,
             'updated_at' => $createdAt
         ];
     }
 
-    // The status for linking to the post
+    /**
+     * Custom helper state for linking to the post
+     */
     public function forPost(Post $post): static
     {
         return $this->state(fn (array $attributes) => [
@@ -42,7 +44,9 @@ class LikeFactory extends Factory
         ]);
     }
 
-    // The status for linking to the comment
+    /**
+     * Custom helper state for linking to the comment
+     */
     public function forComment(Comment $comment): static
     {
         return $this->state(fn (array $attributes) => [

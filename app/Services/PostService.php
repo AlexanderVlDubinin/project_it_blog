@@ -17,24 +17,29 @@ class PostService
         //
     }
 
+    /**
+     * Store a new post.
+     */
     public function store(array $data): Post
     {
         return DB::transaction(function () use ($data) {
-            $image = $data['image'] ?? null;
-            $tags = $data['tags'] ?? [];
+            $image = $data['image'] ?? null; // image for post
+            $tags = $data['tags'] ?? []; // tags for post
 
             unset($data['image'], $data['remove_image'], $data['tags']);
 
-            $data['is_published'] = (bool)($data['is_published'] ?? false);
+            $data['is_published'] = (bool)($data['is_published'] ?? false); // is published
 
-            $post = Post::query()->create($data);
+            $post = Post::query()->create($data); // create post
 
+            // Handle image
             if ($image) {
                 $path = $image->store('posts', 'public');
                 $post->image = $path;
                 $post->save();
             }
 
+            // Handle tags
             if (!empty($tags)) {
                 $tagIds = [];
                 foreach ($tags as $tagInput) {
@@ -52,19 +57,23 @@ class PostService
         });
     }
 
+    /**
+     * Update an existing post.
+     */
     public function update(Post $post, array $data): Post
     {
         return DB::transaction(function () use ($post, $data) {
-            $newImage = $data['image'] ?? null;
-            $removeImage = (bool)($data['remove_image'] ?? false);
+            $newImage = $data['image'] ?? null; // new image for post
+            $removeImage = (bool)($data['remove_image'] ?? false); // remove old image
             $tags = $data['tags'] ?? [];
 
             unset($data['image'], $data['remove_image'], $data['tags']);
 
-            $data['is_published'] = (bool)($data['is_published'] ?? false);
+            $data['is_published'] = (bool)($data['is_published'] ?? false); // is published
 
-            $post->update($data);
+            $post->update($data); // update post
 
+            // remove old image
             if ($removeImage && $post->image) {
                 if ($post->image) {
                     Storage::disk('public')->delete($post->image);
@@ -72,6 +81,7 @@ class PostService
                 $post->image = null;
             }
 
+            // add new image
             if ($newImage) {
                 if ($post->image) {
                     Storage::disk('public')->delete($post->image);
@@ -80,6 +90,7 @@ class PostService
                 $post->image = $path;
             }
 
+            // update (add/remove/change) tags
             $tagIds = [];
             foreach ($tags as $tagInput) {
                 $cleanTagName = trim(mb_strtolower($tagInput));

@@ -15,7 +15,7 @@ class SoftDeleteCommentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return (bool)$this->user();
+        return (bool)$this->user(); // user must be authenticated
     }
 
     /**
@@ -26,8 +26,8 @@ class SoftDeleteCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'reason_key' => ['required', Rule::enum(CommentDeletionReason::class)],
-            'custom_reason' => ['nullable', 'string', 'max:255'],
+            'reason_key' => ['required', Rule::enum(CommentDeletionReason::class)], // reasons for deletion (enum)
+            'custom_reason' => ['nullable', 'string', 'max:255'], // custom reason for deletion
         ];
     }
 }

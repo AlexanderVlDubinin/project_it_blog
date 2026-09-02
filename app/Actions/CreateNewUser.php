@@ -9,8 +9,12 @@ use Illuminate\Support\Facades\Hash;
 
 class CreateNewUser
 {
+    /**
+     * Creates a new user.
+     */
     public function __invoke(array $data): User
     {
+        // Create a new user
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -19,7 +23,7 @@ class CreateNewUser
             'role' => $data['role'] ?? UserRole::USER->value,
         ]);
 
-        event(new Registered($user));
+        event(new Registered($user)); // Dispatch the registered event
 
         return $user;
     }

@@ -12,6 +12,9 @@ class RestrictAdminAccess
     /**
      * Handle an incoming request.
      *
+     * Restricts access to the admin panel to users with the 'manage-site' permission.
+     * If the user does not have the permission, they will be redirected to the dashboard.
+     *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response

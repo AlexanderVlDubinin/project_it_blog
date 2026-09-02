@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-// Reply button testing.
+// Comment reply button testing.
 test('reply to post comment', function () {
     $user = User::factory()->create();
     $author = User::factory()->create([
@@ -76,7 +76,7 @@ test('reply to post comment', function () {
         ->and($user->comment()->count())->toBe(1);
 });
 
-// Edit button testing.
+// Comment edit button testing.
 test('user editing his own post comment', function () {
     $author = User::factory()->create([
         'role' => UserRole::AUTHOR
@@ -141,7 +141,7 @@ test('user editing his own post comment', function () {
         ->and($commentAuthor->comment()->count())->toBe(1);
 });
 
-// admin actions button testing.
+// Admin actions (Comment) button testing.
 test('show/hide admin action window and toggles custom reason input', function () {
     $user = User::factory()->create();
     $admin = User::factory()->create([

@@ -17,6 +17,10 @@ class LikesTrendChart extends ChartWidget
 
     // Specify the chart type: line (linear) or bar (columnar)
     protected static string $type = 'line';
+
+    /**
+     * The column span of the widget (full, 1/2, 1/3, 1/4, 1/6, 1/12).
+     */
     protected int | string | array $columnSpan = 'full';
 
     // 1. Default filter value

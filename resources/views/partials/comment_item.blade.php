@@ -3,10 +3,12 @@
     <div class="comment-header">
         <div class="flex items-center justify-between w-full">
             <div>
+                <!-- User name (commenter) -->
                 <!-- user?->name will return "Anonymous" if the user is deleted from the database -->
                 <strong class="{{ $comment->is_deleted ? 'text-gray-600 dark:text-gray-400' : 'text-indigo-400' }}">
                     {{ $comment->user?->name }} {{-- $comment->is_deleted ? 'Moderator' --}}
                 </strong>
+                <!-- Date and time -->
                 <small class="text-gray-600 dark:text-gray-400">
                     {{ $comment->created_at->format('Y-m-d H:i:s') }} ({{ $comment->created_at->diffForHumans() }})
                 </small>
@@ -14,6 +16,7 @@
 
             <div class="mt-2 flex items-center justify-between w-auto">
                 @if(!$comment->is_deleted && $comment->user_id !== auth()->id())
+                <!-- Reaction block -->
                 <div class="mr-4 reaction-block comment-reaction-block flex items-center gap-4 border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-800 rounded-lg px-2 py-1 text-gray-500 text-sm select-none" data-type="comment" data-id="{{ $comment->id }}">
                     @php
                         $likes = $comment->likes_count ?? 0;
@@ -63,6 +66,7 @@
                 <!-- The answer is possible only on live comments -->
                 @if(!$comment->is_deleted && auth()->check() /*&& $comment->user_id*/)
                     @if($comment->user_id === auth()->id())
+                        <!-- Edit button -->
                         <button
                             type="button"
                             onclick="prepareEdit({{ $comment->id }}, '{{ addslashes($comment->getRawOriginal('body')) }}')"
@@ -72,6 +76,7 @@
                             Edit
                         </button>
                     @else
+                        <!-- Reply button -->
                         <button
                             type="button"
                             onclick="prepareReply({{ $comment->id }}, '{{ $comment->user?->name }}')"
@@ -87,6 +92,7 @@
                     @if($comment->is_deleted && $comment->user_id === auth()->id())
                         {{-- DO NOT SHOW ANYTHING --}}
                     @else
+                    <!-- Admin actions -->
                     <div class="sm:flex sm:items-center sm:ms-2 ">
                         <x-dropdown align="right" width="auto" modal="true">
                             <x-slot name="trigger">
@@ -109,6 +115,7 @@
         </div>
     </div>
 
+    <!-- Comment body -->
     <!-- Automatically outputs a stub with the reason if is_deleted = true -->
     <div class="comment-body mt-4">
         <p class="{{ $comment->is_deleted ? 'text-gray-600 dark:text-gray-400' : '' }}">

@@ -72,8 +72,8 @@ class PostController extends Controller
         $this->authorize('view', $post); // $this->authorize('view', [$user, $post]);
 
         $result = $loadPostComments($post);
-        $post = $result['post'];
-        $comments = $result['comments'];
+        $post = $result['post']; // post with user reactions
+        $comments = $result['comments']; // comments with authors + children + pagination + user reactions
 
         return view('posts.show', [
             'post' => $post,

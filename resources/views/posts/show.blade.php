@@ -7,6 +7,7 @@
 
     <div class="py-12 text-gray-800 dark:text-gray-200">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Button: Return to all posts -->
             <a href="{{ route('posts.index') }}" class="flex w-fit">
                 <button class="flex items-center justify-between border border-border border-gray-700 dark:border-gray-300 rounded-lg px-4 py-2 button-back cursor-pointer">
                     <svg fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-6 h-6 mr-3">
@@ -16,6 +17,7 @@
                 </button>
             </a>
 
+            <!-- Post title -->
             <h1 class="mt-6 text-head text-indigo-400 font-bold text-4xl">
                 {{ $post->title }}
                 @if(!$post->is_published)
@@ -25,10 +27,12 @@
 
             <div class="mt-2 flex items-center justify-between w-auto">
                 <div>
+                    <!-- Post author -->
                     <div class="mt-4 w-full gap-4 text-gray-600 dark:text-gray-400">
                         <b>Authored by: </b>
                         <i>{{ $post->user->name }} ({{ $post->user->email }})</i>
                     </div>
+                    <!-- Created at -->
                     <div class="w-full gap-4 text-gray-600 dark:text-gray-400">
                         <b>Created at: </b>
                         <i>{{ $post->created_at->format('Y-m-d H:i:s') }}</i>
@@ -36,6 +40,7 @@
                     </div>
                 </div>
 
+                <!-- Likes -->
                 @if($post->is_published && $post->user_id !== auth()->id())
                 <div class="reaction-block post-reaction-block flex items-center gap-2" data-type="post" data-id="{{ $post->id }}">
                     @php $hasLiked = $post->userReaction?->is_like === true; @endphp
@@ -56,6 +61,7 @@
                 @endif
             </div>
 
+            <!-- Post image -->
             @if ($post->image)
                 <div class="mt-4 space-y-2">
                     <img src="{{ $post->image_url }}" alt="{{ $post->title }}"
@@ -63,10 +69,12 @@
                 </div>
             @endif
 
+            <!-- Post content -->
             {{-- raw text with html --}}
             {{-- nl2br --- \n ---> <br/>, e - safe text (htmlentities) --}}
             <div class="mt-5">{!! nl2br(e($post->content)) !!}</div>
 
+            <!-- Tags -->
             @if($post->tags->isNotEmpty())
                 <div class="flex flex-wrap gap-2 min-h-8 p-2 rounded-xl mt-5">
                     <b class="text-gray-600 dark:text-gray-400">Tags: </b>
@@ -93,6 +101,7 @@
                         You reply to the user: <strong id="reply_author_name" data-test="reply-comment-author-name"></strong>
                     </div>
 
+                    <!-- Comment creation/edit form -->
                     <form action="{{ route('comments.store', $post) }}" method="POST" id="global_comment_form">
                         @csrf
 
@@ -130,9 +139,10 @@
 
                 <hr class="my-8"/>
 
-                <!-- Tree output -->
+                <!-- Comment tree output -->
                 @if($comments->count() > 0)
                     <div class="comments-tree">
+                        <!-- Comments list -->
                         @foreach($comments as $comment)
                             @include('partials.comment_item', ['comment' => $comment])
                         @endforeach
@@ -255,6 +265,9 @@
                             document.getElementById('form_cancel_btn').classList.add('hidden');
                         }
 
+                        /**
+                         * Focus and scroll to the comment form
+                         */
                         function focusAndScrollForm() {
                             const textarea = document.getElementById('form_body');
                             textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -269,6 +282,7 @@
                         </div>
                     @endif
                 @else
+                    {{-- No comments yet --}}
                     <h2 class="text-4xl font-bold text-indigo-600 flex item-center">
                         No comments yet.
                     </h2>

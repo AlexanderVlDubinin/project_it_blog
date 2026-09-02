@@ -15,6 +15,11 @@ class ClearOldNotifications extends Command
 {
     /**
      * Execute the console command.
+     *
+     * Command description:
+     * - Clears old and already read notifications.
+     * - Deletes notifications that are older than the user's notification TTL (Time To Live) days.
+     * - Works in chunks to prevent memory overflow.
      */
     public function handle(): int
     {

@@ -14,7 +14,7 @@ class UpdateNotificationSettingsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return (bool) auth()->user();
+        return (bool) auth()->user(); // user must be authenticated
     }
 
     /**
@@ -25,6 +25,7 @@ class UpdateNotificationSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // Validate notifications TTL days
             'notifications_ttl_days' => ['required', Rule::enum(OldReadNotificationTerms::class)],
         ];
     }

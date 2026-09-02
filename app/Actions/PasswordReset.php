@@ -9,6 +9,9 @@ use Illuminate\Support\Str;
 
 class PasswordReset
 {
+    /**
+     * Reset the given user's password.
+     */
     public function __invoke(array $data): string
     {
         return Password::reset(

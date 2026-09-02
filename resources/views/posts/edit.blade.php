@@ -11,6 +11,7 @@
 
     <div class="py-12 text-gray-800 dark:text-gray-200">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Button: Return to all posts -->
             <a href="{{ route('posts.index') }}">
                 <button class="flex items-center justify-between border border-border border-gray-700 dark:border-gray-300 rounded-lg px-4 py-2 button-back cursor-pointer">
                     <svg fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-6 h-6 mr-3">
@@ -20,12 +21,14 @@
                 </button>
             </a>
 
+            <!-- Form: Create or Edit Post -->
             <form action="{{ $isEdit ? route('posts.update', $post) : route('posts.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @if ($isEdit)
                     @method('PATCH')
                 @endif
 
+                <!-- Post title -->
                 <div class="space-y-2 mt-4">
                     <label for="title" class="label">Title</label>
                     @error('title')<p class="error">{{ $message }}</p>@enderror
@@ -39,6 +42,7 @@
                     />
                 </div>
 
+                <!-- Post content -->
                 <div class="space-y-2 mt-4">
                     <label for="content" class="label">Content</label>
                     @error('content')<p class="error">{{ $message }}</p>@enderror
@@ -71,15 +75,18 @@
                     });
                 </script>
 
+                <!-- Post image -->
                 <div class="space-y-2 mt-4">
                     <label for="image" class="label">Post Image</label>
                     @error('image')<p class="error">{{ $message }}</p>@enderror
                     @if ($isEdit && $post->image)
                         <div class="space-y-2">
+                            {{-- Image --}}
                             {{-- getImageUrlAttribute() makes it equal to {{ asset('storage/' . $post->image) }} --}}
                             <img src="{{ $post->image_url }}" alt="{{ $post->title }}"
                                  class="w-full h-auto object-cover rounded-lg">
 
+                            {{-- Checkbox to remove image --}}
                             <div class="flex items-center gap-2 text-sm">
                                 <input type="checkbox" name="remove_image" value="1" {{ old('remove_image') ? 'checked' : '' }} class="rounded"/>
                                 Remove Image
@@ -114,10 +121,11 @@
                     </div>
                 </div>
 
+                <!-- Post tags -->
                 <div class="mb-4 mt-4">
                     <label class="block text-sm font-medium mb-2">Tags (maximum 7)</label>
 
-                    {{-- Поле ввода с подсказками из datalist --}}
+                    {{-- Input field with hints from datalist --}}
                     <div class="flex gap-2 mb-3">
                         <input type="text" id="tag-input" list="existing-tags" placeholder="Enter the tags (separated by commas) and click Add"
                                class="rounded-xl border-gray-300 bg-white dark:bg-gray-800 flex-1 text-sm shadow-sm">
@@ -161,24 +169,26 @@
                     @enderror
                 </div>
 
+                <!-- Publish status -->
                 <div class="space-y-2 mt-4 flex items-center justify-between w-full gap-4">
                     @error('is_published')<p class="error">{{ $message }}</p>@enderror
                     <div class="inline-flex rounded-lg bg-gray-400 p-1 border border-gray-200">
                         <label for="is_published1" class="relative block cursor-pointer select-none">
                             <input type="radio" id="is_published1" name="is_published" value="1" class="peer sr-only" {{ old('is_published', $post->is_published) == '1' ? 'checked' : '' }}>
                             <span class="block px-6 py-2 text-sm font-medium text-gray-600 rounded-md transition-all duration-200 peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-md hover:text-gray-900">
-                        Publish
-                    </span>
+                                Publish
+                            </span>
                         </label>
 
                         <label for="is_published0" class="relative block cursor-pointer select-none">
                             <input type="radio" id="is_published0" name="is_published" value="0" class="peer sr-only" {{ old('is_published', $post->is_published ?? '0') == '0' ? 'checked' : '' }}>
                             <span class="block px-6 py-2 text-sm font-medium text-gray-600 rounded-md transition-all duration-200 peer-checked:bg-[oklch(0.45_0.25_25)] peer-checked:text-white peer-checked:shadow-md hover:text-gray-900">
-                        Unpublish
-                    </span>
+                                Unpublish
+                            </span>
                         </label>
                     </div>
 
+                    <!-- Submit button -->
                     <div>
                         <button type="submit" class="px-8 py-4 text-md font-semibold text-white bg-primary rounded-xl cursor-pointer border border-gray-200">
                             {{ $isEdit ? 'Update' : 'Save' }}
@@ -187,6 +197,7 @@
                 </div>
 
                 <script>
+                    // Add tags functionality
                     function addTags() {
                         const input = document.getElementById('tag-input');
                         const container = document.getElementById('tags-container');
@@ -228,8 +239,10 @@
                         input.value = '';
                     }
 
+                    // Add tags functionality by clicking on the Add button
                     document.getElementById('add-tag-btn').addEventListener('click', addTags);
 
+                    // Add tags functionality by pressing Enter
                     document.getElementById('tag-input').addEventListener('keydown', function(event) {
                         if (event.key === 'Enter') {
                             event.preventDefault(); // Blocking the sending of the entire form by pressing Enter
@@ -237,6 +250,7 @@
                         }
                     });
 
+                    // Autocomplete functionality - all tags
                     const bigDatabase = [];
                     @foreach(\App\Models\Tag::all() as $tag)
                         bigDatabase.push('{{ $tag->name }}');
@@ -245,18 +259,19 @@
                     const input = document.getElementById('tag-input');
                     const datalist = document.getElementById('existing-tags');
 
+                    // Autocomplete functionality - all tags
                     input.addEventListener('input', (e) => {
                         const query = e.target.value.toLowerCase();
-                        datalist.innerHTML = ''; // Очищаем старые варианты
+                        datalist.innerHTML = ''; // Clearing the old options
 
-                        if (query.length < 2) return; // Ищем только от 2 символов
+                        if (query.length < 2) return; // Looking for only 2 characters or more
 
-                        // Фильтруем и ограничиваем результат первыми 5 совпадениями
+                        // Filtering and limiting the result to the first 5 matches
                         const filtered = bigDatabase
                             .filter(item => item.toLowerCase().includes(query))
                             .slice(0, 5);
 
-                        // Добавляем отфильтрованные подсказки в datalist
+                        // Adding filtered hints to the datalist
                         filtered.forEach(item => {
                             const option = document.createElement('option');
                             option.value = item;

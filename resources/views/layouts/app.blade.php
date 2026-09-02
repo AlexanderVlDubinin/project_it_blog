@@ -63,6 +63,7 @@
 
         @if(auth()->check() && request()->routeIs(['posts.index', 'posts.show']))
         <script>
+            // Script for handling reactions
             document.addEventListener('DOMContentLoaded', () => {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
@@ -91,6 +92,7 @@
                     }
                 }
 
+                // Event listener for reaction buttons
                 document.body.addEventListener('click', async (event) => {
                     const btn = event.target.closest('.js-reaction-btn');
                     if (!btn) return;
@@ -104,6 +106,7 @@
 
                     btn.classList.add('pointer-events-none', 'opacity-70');
 
+                    // Send a request to the server
                     try {
                         const response = await fetch('/reactions/toggle', {
                             method: 'POST',

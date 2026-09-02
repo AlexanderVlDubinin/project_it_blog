@@ -50,6 +50,7 @@ class CommentFactory extends Factory
     public function rootForPost(int $postId, \DateTimeInterface $postCreatedAt): static
     {
         $createdAt = fake()->dateTimeBetween($postCreatedAt, 'now');
+        // 15% of the time, the comment will be updated
         $updatedAt = fake()->boolean(15) ? fake()->dateTimeBetween($createdAt, 'now') : $createdAt;
 
         return $this->state([
@@ -65,6 +66,7 @@ class CommentFactory extends Factory
      */
     public function child(int $parentId, int $postId, \DateTimeInterface $parentCreatedAt): static
     {
+        // parent date
         $parentDate = Carbon::parse($parentCreatedAt);
         $timeMaxLimit = $parentDate->copy()->addWeeks(2);
         $maxDate = $timeMaxLimit->isFuture() ? 'now' : $timeMaxLimit;

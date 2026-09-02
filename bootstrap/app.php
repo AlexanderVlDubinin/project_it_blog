@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         //
         $middleware->alias([
-            'role' => RoleMiddleware::class,
+            'role' => RoleMiddleware::class, // alias for role middleware
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

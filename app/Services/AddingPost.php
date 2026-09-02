@@ -13,17 +13,25 @@ use Symfony\Component\DomCrawler\Crawler;
 
 readonly class AddingPost
 {
+    /**
+     * Validate user ID and return user ID if valid.
+     * Returns an error message if the user is not found or is not an author.
+     * Returns 0 if no user ID is specified in the command arguments.
+     */
     public function beforeImportNews(int $userId): array
     {
+        // Log start message
         $messageBefore = 'Checking parameters before import news: userId = ' . $userId . '. ';
 
         if ($userId) {
+            // Check if user exists and is an author
             $user = User::query()
                 ->where('id', $userId)
                 ->where('role', 'author')
                 ->first();
 
             if (!$user) {
+                // return error message and data
                 return ['status' => 'error', 'message' => $messageBefore . 'User not found or not author.', 'user_id' => null];
             }
 
@@ -32,9 +40,14 @@ readonly class AddingPost
             $userId = 0;
         }
 
+        // return success message and data
         return ['status' => 'success', 'message' => $messageBefore . 'User OK.', 'user_id' => $userId];
     }
 
+    /**
+     * Import news from TechCrunch and save to database.
+     * Returns an error message if the import fails.
+     */
     public function importNews(int $userId, string $logChannel, int $newsNum = 1, bool $addTags = false, bool $dryRun = false): array
     {
         // 1. Getting the HTML code of the page
@@ -42,20 +55,22 @@ readonly class AddingPost
         $response = Http::get($url);
 
         if ($response->failed()) {
-            Log::channel($logChannel)->error('Failed to get HTML code: ' . $response->status());
-            return ['status' => 'error', 'message' => 'Failed to get HTML code'];
+            Log::channel($logChannel)->error('Failed to get HTML code: ' . $response->status()); // Log error message
+            return ['status' => 'error', 'message' => 'Failed to get HTML code']; // return error message and data
         }
 
+        // 2. Get HTML code
         $html = $response->body();
 
+        // Log start message
         Log::channel($logChannel)->info('Start getting headers');
 
-        // 2. Initialize DomCrawler
+        // 3. Initialize DomCrawler
         $crawler = new Crawler($html);
 
         $news = [];
 
-        // 3. Search for articles and collect data
+        // 4. Search for articles and collect data
         $crawler->filter('div.loop-card__content h3.loop-card__title > a.loop-card__title-link') // get all headers with specific selectors
         ->each(function (Crawler $node, $i) use (&$news, $newsNum) {
             if (count($news) >= $newsNum) {
@@ -67,12 +82,14 @@ readonly class AddingPost
             ];
         });
 
-        //Filter out empty results if some blocks are not parsed.
+        // 5. Filter out empty results if some blocks are not parsed.
         $news = array_filter($news, fn($item) => !empty($item['title']));
 
         Log::channel($logChannel)->info(sprintf('Start getting texts for %d headers', count($news)));
 
+        // 6. Get news texts (and import images) and check for duplicates
         foreach ($news as $key => &$new) {
+            // Check for duplicates
             $title = $new['title'];
             $isPostExists = Post::query()->where('title', $title)->exists();
             if ($isPostExists) {
@@ -86,6 +103,7 @@ readonly class AddingPost
             $innerResponse = Http::get($link);
             $crawlerInner = new Crawler($innerResponse->body());
 
+            // 7. Get news content
             $containerInner = $crawlerInner->filter('div.entry-content.wp-block-post-content'); // get content
 
             if ($containerInner->count() === 0) {
@@ -138,6 +156,7 @@ readonly class AddingPost
                 continue;
             }
 
+            // 8. Get news image
             $containerInnerImage = $crawlerInner->filter('figure.wp-block-post-featured-image'); // get image src
             if ($containerInnerImage->count()) {
                 $new['imageSrc'] = $containerInnerImage->filter('img')->count() ? $containerInnerImage->filter('img')->attr('src') : '';
@@ -147,23 +166,30 @@ readonly class AddingPost
         }
         unset($new); // just in case
 
-        // 4. Add news to database
+        // 9. Add news to database OR dry run
         if (!$dryRun) {
             $saveDBResult = $this->saveNewsToDatabase($logChannel, $news, $userId, $addTags);
         } else {
             $saveDBResult = ['status' => 'success', 'message' => 'A dry run has been made'];
         }
 
+        // 10. Log end message
         Log::channel($logChannel)->info('End importing news');
 
         return $saveDBResult;
     }
 
+    /**
+     * Save news to database
+     */
     private function saveNewsToDatabase(string $logChannel, array $news, int $userId, bool $addTags): array
     {
+        // 1. Check if news array is empty
         if (!empty($news)) {
+            // 2. Log start message
             Log::channel($logChannel)->info('Start save news to Database');
 
+            // 3. Get author IDs
             $newsCount = count($news);
             if (!$userId) {
                 $userIds = User::query()->inRandomOrder()->where('role', 'author')->pluck('id');
@@ -177,22 +203,25 @@ readonly class AddingPost
                 $randomIds = [$userId];
             }
 
+            // 4. Check if authors are found and return error if not
             if (empty($randomIds)) {
                 Log::channel($logChannel)->error('No authors found');
                 return ['status' => 'error', 'message' => 'No authors found'];
             }
 
+            // 5. Save news to database
             foreach ($news as $key => $new) {
-                $src = $new['imageSrc'] ?? '';
+                $src = $new['imageSrc'] ?? ''; // Get image source
                 unset($new['imageSrc']);
 
-                $new['user_id'] = $userId ? $randomIds[0] : $randomIds[$key];
+                $new['user_id'] = $userId ? $randomIds[0] : $randomIds[$key]; // Get author ID
                 $new['is_published'] = true;
 
-                $post = Post::query()->create($new);
+                $post = Post::query()->create($new); // Create post from new
 
+                // 6. Save image to database and disk
                 if (!empty($src)) {
-                    $responseImage = Http::get($src);
+                    $responseImage = Http::get($src); // Get image from source
                     if ($responseImage->successful()) {
                         // Extracting the extension
                         $extension = pathinfo(parse_url($src, PHP_URL_PATH), PATHINFO_EXTENSION);
@@ -203,6 +232,7 @@ readonly class AddingPost
                             continue;
                         }
 
+                        // Save image to disk
                         $tempName = Str::random(12) . '.' . $extension;
                         Storage::disk('public')->put('posts/' . $tempName, $responseImage->body());
 
@@ -210,6 +240,7 @@ readonly class AddingPost
                     }
                 }
 
+                // 7. Add tags
                 if ($addTags) {
                     $this->addTags($post);
                 }
@@ -217,30 +248,39 @@ readonly class AddingPost
                 $post->save();
             }
         } else {
+            // 7. Log end message and return error if no news found
             Log::channel($logChannel)->error('No news found');
             return ['status' => 'error', 'message' => 'No news found'];
         }
 
+        // 8. Log end message
         Log::channel($logChannel)->info('End save news to Database');
 
         return ['status' => 'success', 'message' => 'News added successfully'];
     }
 
+    /**
+     * Add tags to post
+     */
     private function addTags(Post $post): void
     {
+        // 1. Get all tag IDs
         $tagIds = Tag::query()->pluck('id')->toArray();
 
         $tagIdsNumber = count($tagIds);
         if ($tagIdsNumber) {
+            // 2. Get random tag number (between 2 and 7)
             $tagNumber = mt_rand(2, 7);
 
             if ($tagIdsNumber <= $tagNumber) {
-                $postTagIds = $tagIds;
+                $postTagIds = $tagIds; // If there are less tags than the random number, use all tags
             } else {
+                // Get random tag IDs
                 $randomKeys = array_rand($tagIds, $tagNumber);
                 $postTagIds = array_map(fn($key) => $tagIds[$key], (array) $randomKeys);
             }
 
+            // 3. Add tags to post
             $post->tags()->sync($postTagIds);
         }
     }

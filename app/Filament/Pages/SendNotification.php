@@ -22,8 +22,14 @@ use Illuminate\Support\Facades\Notification as LaravelNotification; // For mass 
 
 class SendNotification extends Page
 {
+    /**
+     * Auxiliary methods for working with forms
+     */
     use InteractsWithForms;
 
+    /**
+     * Navigation properties
+     */
     protected static ?string $navigationLabel = 'Sending notifications';
     protected static ?string $title = 'Send a notification to users';
     protected string $view = 'filament.pages.send-notification';
@@ -31,11 +37,17 @@ class SendNotification extends Page
     // Properties for storing form data
     public ?array $data = [];
 
+    /**
+     * Navigation icon (in sidebar)
+     */
     public static function getNavigationIcon(): string|BackedEnum|null
     {
         return 'heroicon-o-paper-airplane';
     }
 
+    /**
+     * Page mount method
+     */
     public function mount(): void
     {
         $this->form->fill([
@@ -43,6 +55,9 @@ class SendNotification extends Page
         ]);
     }
 
+    /**
+     * Page form method
+     */
     public function form(Schema $form): Schema
     {
         return $form
@@ -62,6 +77,7 @@ class SendNotification extends Page
                             ->minItems(1)
                             ->columns(2),
 
+                        // Selecting the target users OR group of users
                         Select::make('target')
                             ->label('To whom to send')
                             ->options([
@@ -76,6 +92,7 @@ class SendNotification extends Page
                             ->live()
                             ->required(),
 
+                        // Selecting a specific user (if target is 'single')
                         Select::make('user_id')
                             ->label('Select a user')
                             ->options(User::query()->pluck('name', 'id'))
@@ -106,9 +123,12 @@ class SendNotification extends Page
             ->statePath('data');
     }
 
-    // The sending method called by the button on the page
+    /**
+     * The sending method called by the button on the page
+     */
     public function send(): void
     {
+        // Get the form data
         $formData = $this->form->getState();
 
         // Creating the object of notification
@@ -129,7 +149,7 @@ class SendNotification extends Page
         } elseif ($formData['target'] === 'single') {
             $user = User::query()->find($formData['user_id']);
             if ($user) {
-                $user->notify($notification);
+                $user->notify($notification); // Sending a notification to a single user
             }
         } elseif (in_array($formData['target'], ['admin', 'moderator', 'author', 'user'])) {
             // Sending to a group of users with a specific role
@@ -144,6 +164,7 @@ class SendNotification extends Page
             'channels' => ['database'],
         ]);
 
+        // Show success notification
         FilamentNotification::make()
             ->title('The notification has been sent successfully!')
             ->success()

@@ -12,6 +12,9 @@ class Tag extends Model
     /** @use HasFactory<TagFactory> */
     use HasFactory;
 
+    /**
+     * Get the posts for the tag.
+     */
     public function posts(): BelongsToMany
     {
         return $this->belongsToMany(Post::class)->withTimestamps();

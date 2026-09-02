@@ -8,17 +8,12 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class LoadPostComments
 {
+    /**
+     * Load post and its comments with authors, children (tree structure),
+     * user reactions (likes/dislikes) and pagination.
+     */
     public function __invoke(Post $post): array // LengthAwarePaginator
     {
-        // Loading the post and recursively only the ROOT comments along with their authors
-        /*
-        $post->load([
-            'comments' => function ($query) {
-                $query->whereNull('parent_id')->with(['user', 'allChildren'])->orderBy('created_at', 'desc');
-            }
-        ]);
-        */
-
         // Loading the post and its reaction count
         $post->loadCount([
             'reactions as likes_count' => fn($q) => $q->where('is_like', true)

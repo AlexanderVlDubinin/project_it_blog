@@ -14,7 +14,7 @@ class NotificationsFiltersRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return (bool) $this->user();
+        return (bool) $this->user(); // user must be authenticated
     }
 
     /**
@@ -25,7 +25,7 @@ class NotificationsFiltersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'notification_type' => ['nullable', Rule::enum(NotificationTypes::class)],
+            'notification_type' => ['nullable', Rule::enum(NotificationTypes::class)], // Validate notification type
         ];
     }
 }

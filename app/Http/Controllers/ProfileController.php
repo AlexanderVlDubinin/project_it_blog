@@ -42,14 +42,14 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        Auth::logout();
+        Auth::logout(); // logout the user
 
-        //$this->profileRepository->destroy($user);
         $profileDestroy($user);
 
+        // invalidate the session and regenerate the token
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return Redirect::to('/'); // redirect to home page
     }
 }

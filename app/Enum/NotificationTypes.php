@@ -4,12 +4,20 @@ namespace App\Enum;
 
 enum NotificationTypes: string
 {
+    /**
+     * Enum values
+     *
+     * Admin notifications types
+     */
     case INFO = 'info';
     case WARNING = 'warning';
     case DANGER = 'danger';
     case SUCCESS = 'success';
     //case GRAY = 'gray';
 
+    /**
+     * Auxiliary method for displaying in a drop-down list
+     */
     public static function labels(): array
     {
         return [

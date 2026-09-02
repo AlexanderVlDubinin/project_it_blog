@@ -12,7 +12,7 @@ class PostFiltersRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return (bool) $this->user();
+        return (bool) $this->user(); // user must be authenticated
     }
 
     /**
@@ -23,11 +23,11 @@ class PostFiltersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'q' => ['nullable', 'string', 'max:255'],
-            'user_id' => ['nullable', 'integer', 'exists:users,id'],
+            'q' => ['nullable', 'string', 'max:255'], // search string
+            'user_id' => ['nullable', 'integer', 'exists:users,id'], // author id
             'date_from' => ['nullable', 'date'], // 'date_format:Y-m-d'
             'date_to'   => ['nullable', 'date', 'after_or_equal:date_from'], // 'date_format:Y-m-d'
-            'tag_id' => ['nullable', 'integer', 'exists:tags,id'],
+            'tag_id' => ['nullable', 'integer', 'exists:tags,id'], // tag id must exist
         ];
     }
 

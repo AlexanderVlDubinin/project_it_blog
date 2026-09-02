@@ -5,11 +5,12 @@ namespace App\Actions;
 class MarkNotificationsAsRead
 {
     /**
-     * Create a new class instance.
+     * Mark notifications as read.
      */
     public function __invoke(string $id = ''): array|null
     {
         if ($id) {
+            // Mark a specific (ID) notification as read
             $notification = auth()->user()->notifications()->findOrFail($id);
 
             if (is_null($notification->read_at)) {

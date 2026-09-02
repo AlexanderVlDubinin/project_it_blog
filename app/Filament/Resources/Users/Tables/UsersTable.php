@@ -13,38 +13,54 @@ use Filament\Tables\Table;
 
 class UsersTable
 {
+    /**
+     * Configure the table.
+     */
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
+                // User ID column
                 TextColumn::make('id')
                     ->label('ID')
                     ->searchable()
                     ->sortable(),
+
+                // User Name column
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+
+                // User Email column
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable()
                     ->sortable(),
+
+                // User Email Verified At column
                 TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),
+
+                // User Created At column
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // User Updated At column
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // User Role column
                 TextColumn::make('role')
                     ->badge()
                     ->searchable(),
             ])
             ->filters([
-                // Filters can be added here (for example, administrators only)
+                // Filters (by role) can be added here (for example, administrators only)
                 SelectFilter::make('role')
                     ->options([
                         'admin' => 'Admin',
@@ -55,7 +71,7 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make()
-                    // disable edit action for moderator
+                    // disable edit action for moderator (cannot edit the admin)
                     ->disabled(fn (User $record): bool =>
                         auth()->user()->role === UserRole::MODERATOR && $record->role === UserRole::ADMIN
                     ),

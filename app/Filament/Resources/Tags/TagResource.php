@@ -20,6 +20,9 @@ class TagResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    /**
+     * The navigation sort order (order in the navigation/side menu).
+     */
     protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema
@@ -39,6 +42,9 @@ class TagResource extends Resource
         ];
     }
 
+    /**
+     * The resource pages.
+     */
     public static function getPages(): array
     {
         return [

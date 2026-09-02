@@ -26,11 +26,11 @@ class StorePostRequest extends FormRequest
             'title' => ['required', 'string', 'min:3', 'max:255'],
             'content' => ['required', 'string', 'min:20'],
             'is_published' => ['sometimes', 'boolean'],
-            'image' => ['nullable', 'file', 'mimes:jpeg,jpg,png,gif,webp', 'max:2048'],
-            'remove_image' => ['sometimes', 'boolean'],
-            'user_id' => ['required', 'integer', 'exists:users,id'],
-            'tags' => ['nullable', 'array', 'max:7'],
-            'tags.*' => ['required', 'string', 'min:2', 'max:50', 'not_regex:/[^a-zA-Z0-9\s]/'],
+            'image' => ['nullable', 'file', 'mimes:jpeg,jpg,png,gif,webp', 'max:2048'], // post image
+            'remove_image' => ['sometimes', 'boolean'], // remove post image
+            'user_id' => ['required', 'integer', 'exists:users,id'], // author id
+            'tags' => ['nullable', 'array', 'max:7'], // max 7 tags
+            'tags.*' => ['required', 'string', 'min:2', 'max:50', 'not_regex:/[^a-zA-Z0-9\s]/'], // tag name
         ];
     }
 
@@ -50,6 +50,9 @@ class StorePostRequest extends FormRequest
         ];
     }
 
+    /**
+     * Prepare the data for validation.
+     */
     protected function prepareForValidation(): void
     {
         $this->merge([

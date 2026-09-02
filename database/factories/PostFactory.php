@@ -25,6 +25,7 @@ class PostFactory extends Factory
     public function definition(): array
     {
         $createdAt = fake()->dateTimeBetween('-1 year', 'now');
+        // 25% of the time, the post is updated
         $updatedAt = fake()->boolean(25) ? fake()->dateTimeBetween($createdAt, 'now') : $createdAt;
 
         return [
@@ -33,7 +34,7 @@ class PostFactory extends Factory
                 fn() => fake()->paragraph(5, 10),
                 range(1, mt_rand(4, 14))
             )),
-            'is_published' => fake()->boolean(80),
+            'is_published' => fake()->boolean(80), // 80% of the time, the post is published
             'image' => 'pending', // Fill it in afterCreating, if the files exist / fake()->boolean(75) ? 'pending' : null
             'created_at' => $createdAt,
             'updated_at' => $updatedAt,
@@ -61,6 +62,7 @@ class PostFactory extends Factory
                 return;
             }
 
+            // Source path for image files
             $sourcePath = public_path('images/posts_images');
 
             // Scanning the directory once for the entire siding cycle
@@ -68,6 +70,7 @@ class PostFactory extends Factory
                 self::$cachedFiles = File::exists($sourcePath) ? File::files($sourcePath) : [];
             }
 
+            // Copying the file & updating the model
             if (!empty(self::$cachedFiles)) {
                 $randomFile = fake()->randomElement(self::$cachedFiles);
                 $targetFolder = 'posts';

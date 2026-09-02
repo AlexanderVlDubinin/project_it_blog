@@ -26,20 +26,29 @@ use Illuminate\Support\Str;
 
 class CommentsRelationManager extends RelationManager
 {
+    /**
+     * The relationship name
+     */
     protected static string $relationship = 'comments';
 
+    /**
+     * Get the form schema.
+     */
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Section::make('Comment Information')
                     ->schema([
+                        // the comment body
                         Textarea::make('body')
                             ->required()
                             ->string()
                             ->minLength(2)
                             ->maxLength(2000)
                             ->columnSpanFull(),
+
+                        // the parent comment - the comment that this comment is a reply to
                         Select::make('parent_id')
                             ->nullable()
                             ->relationship(
@@ -61,7 +70,7 @@ class CommentsRelationManager extends RelationManager
                                         ->select(['id', 'body', 'user_id', 'is_deleted', 'deletion_reason']); // Safe sampling for Strict Mode
                                 }
                             )
-                            ->getOptionLabelFromRecordUsing(function ($record) {
+                            ->getOptionLabelFromRecordUsing(function ($record) { // the label of the parent comment
                                 $author = $record->user?->name ?? 'Anonymous';
                                 $text = Str::limit($record->body, 40);
 
@@ -70,18 +79,28 @@ class CommentsRelationManager extends RelationManager
                             ->searchable(['body'])
                             ->preload()
                             ->placeholder('Root comment (no parent)'),
+
+                        // the author of the comment
                         Select::make('user_id')
                             ->relationship('user', 'name')
                             ->label('Author')
                             ->nullable() // Allows NULL to be written to the database
                             ->placeholder('Anonymous (Leave it blank)'), // Hint in the drop-down list
+
+                        // the deletion status of the comment
                         Toggle::make('is_deleted')
                             ->required(),
+
+                        // the reason for deletion
                         TextInput::make('deletion_reason'),
                     ])->columns(1), // Display fields in 1 column
             ]);
     }
 
+
+    /**
+     * Get the table schema.
+     */
     public function table(Table $table): Table
     {
         return $table
@@ -92,9 +111,12 @@ class CommentsRelationManager extends RelationManager
                 'reactions as dislikes_count' => fn ($q) => $q->where('is_like', false),
             ]))
             ->columns([
+                // the comment text column
                 TextColumn::make('body')
                     ->label('Text')
                     ->limit(40),
+
+                // the author of the comment column
                 TextColumn::make('user.name')
                     ->label('Author')
                     ->default('Anonymous')
@@ -129,21 +151,30 @@ class CommentsRelationManager extends RelationManager
                     ->label('👎')
                     ->alignCenter(),
 
+                // The parent comment (ID) column
                 TextColumn::make('parent.id')
                     ->default('-')
                     ->searchable()
                     ->alignCenter(),
+
+                // The creation date column
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // The update date column
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // The deletion status column
                 IconColumn::make('is_deleted')
                     ->boolean()
                     ->alignCenter(),
+
+                // The deletion reason column
                 TextColumn::make('deletion_reason')
                     ->default('-')
                     ->searchable()
@@ -153,18 +184,18 @@ class CommentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make(), // Create new comment
                 //AssociateAction::make(),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make(), // Edit comment
                 //DissociateAction::make(),
                 //DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     //DissociateBulkAction::make(),
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make(), // Delete selected comments
                 ]),
             ]);
     }

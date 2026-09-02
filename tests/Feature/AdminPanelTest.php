@@ -158,7 +158,8 @@ test('moderator can visit admin panel pages', function () {
         ->assertSee('Edit Tag');
 });
 
-test('non-admin-moderator user is redirected to dashboard', function () {
+// non admin/moderator user is redirected to dashboard testing.
+test('non admin/moderator user is redirected to dashboard', function () {
     $user = User::factory()->create();
     $author = User::factory()->create([
         'role' => UserRole::AUTHOR

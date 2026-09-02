@@ -31,6 +31,7 @@ test('email can be verified', function () {
     $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
 });
 
+// email verification with invalid hash testing.
 test('email is not verified with invalid hash', function () {
     $user = User::factory()->unverified()->create();
 

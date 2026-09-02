@@ -12,7 +12,7 @@ class StoreCommentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return (bool) $this->user();
+        return (bool) $this->user(); // user must be authenticated
     }
 
     /**

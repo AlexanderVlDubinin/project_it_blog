@@ -22,8 +22,15 @@ class PostResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
+    /**
+     * The navigation sort order (order in the navigation/side menu).
+     */
     protected static ?int $navigationSort = 10;
 
+    /**
+     * The record title attribute.
+     * (Global Search + Relation Manager Titles)
+     */
     protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Schema $schema): Schema
@@ -43,6 +50,9 @@ class PostResource extends Resource
         ];
     }
 
+    /**
+     * The resource pages.
+     */
     public static function getPages(): array
     {
         return [
@@ -52,6 +62,10 @@ class PostResource extends Resource
         ];
     }
 
+    /**
+     * The resource record route binding Eloquent query.
+     * (admin can view/edit Soft Deleted records)
+     */
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
         return parent::getRecordRouteBindingEloquentQuery()

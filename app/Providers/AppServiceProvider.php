@@ -24,8 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Model::unguard();
-        Model::shouldBeStrict();
-        Model::automaticallyEagerLoadRelationships();
+        Model::unguard(); // disables Mass Assignment protection for all models
+        Model::shouldBeStrict(); // enables strict mode for all models
+        Model::automaticallyEagerLoadRelationships(); // enables automatic eager loading of relationships
     }
 }

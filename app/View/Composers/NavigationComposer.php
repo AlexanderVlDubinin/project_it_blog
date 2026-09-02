@@ -14,6 +14,10 @@ class NavigationComposer
         //
     }
 
+    /**
+     * Compose the view.
+     * Add unread notifications count to the view.
+     */
     public function compose(View $view): void
     {
         if (auth()->check()) {

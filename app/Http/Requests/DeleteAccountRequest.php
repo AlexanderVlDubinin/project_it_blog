@@ -14,7 +14,7 @@ class DeleteAccountRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return (bool) $this->user();
+        return (bool) $this->user(); // user must be authenticated
     }
 
     /**
@@ -25,7 +25,7 @@ class DeleteAccountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'password' => ['required', 'current_password'],
+            'password' => ['required', 'current_password'], // user must provide current password
         ];
     }
 }

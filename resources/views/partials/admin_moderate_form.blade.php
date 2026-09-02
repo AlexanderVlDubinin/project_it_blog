@@ -1,7 +1,7 @@
 <div class="admin-moderation-zone {{ $comment->is_deleted ? 'py-1' : 'mt-2.5 p-2.5' }}  /*border border-dashed border-gray-500 rounded*/">
     @if($comment->is_deleted)
         @can('restore', $comment)
-        {{-- Restore --}}
+        {{-- Restore Comment --}}
         <x-dropdown-link href="#"
                          data-url="{{ route('admin.comments.restore', $comment->id) }}"
                          @click.prevent="$dispatch('set-comment-restore-url', $el.dataset.url)"
@@ -17,7 +17,7 @@
         @endcan
 
         @can('forceDelete', $comment)
-        {{-- Delete --}}
+        {{-- Force Delete Comment --}}
         <x-dropdown-link href="#"
                          data-url="{{ route('admin.comments.destroy', $comment) }}"
                          @click.prevent="if (confirm('Are you sure you want to permanently delete this comment with all its descendants?')) { $dispatch('set-comment-delete-url', $el.dataset.url) }"
@@ -32,7 +32,7 @@
         </x-dropdown-link>
         @endcan
     @else
-        {{-- SoftDelete form --}}
+        {{-- SoftDelete form (SoftDelete Comment) --}}
         <form action="{{ route('admin.comments.delete', $comment) }}" method="POST" class="m-0 {{ $comment->is_deleted }}">
             @csrf
             @method('PUT')
@@ -57,6 +57,7 @@
                     </select>
                 </div>
                 @else
+                    {{-- Self Delete (when user deletes their own comment) --}}
                     <input type="hidden" name="reason_key" value="{{ \App\Enum\CommentDeletionReason::SELF_DELETE->value }}" readonly>
                 @endIf
 
@@ -69,7 +70,7 @@
             </div>
 
             @if($comment->user_id !== auth()->user()->id)
-            <!-- Hidden field for manual input (shown when "other" is selected) -->
+            <!-- Hidden field for manual input deletion reason (shown when "other" is selected) -->
             <div id="custom_reason_container_{{ $comment->id }}" class="hidden mt-2">
                 <input
                     type="text"
@@ -93,10 +94,10 @@
 
                 if (!container || !input) return;
 
-                console.log(selectElement.value);
+                //console.log(selectElement.value);
 
                 if (selectElement.value === 'other') {
-                    console.log(selectElement.value);
+                    //console.log(selectElement.value);
                     container.classList.remove('hidden');
                     //container.style.display = 'block';
                     input.setAttribute('required', 'required');

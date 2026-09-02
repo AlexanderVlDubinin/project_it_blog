@@ -18,6 +18,9 @@ class TopLikedPostsWidget extends TableWidget
     // Widget sorting - the order of widget output
     protected static ?int $sort = 20;
 
+    /**
+     * The column span of the widget (full, 1/2, 1/3, 1/4, 1/6, 1/12).
+     */
     protected int | string | array $columnSpan = 'full';
 
     // The title of the card on the Dashboard
@@ -29,6 +32,7 @@ class TopLikedPostsWidget extends TableWidget
         return $table
             ->query(
                 Post::query()
+                    // With count of likes
                     ->withCount([
                         'reactions as likes_count' => fn ($query) => $query->where('is_like', true)
                     ])
@@ -36,11 +40,18 @@ class TopLikedPostsWidget extends TableWidget
                     ->limit(5)
             )
             ->columns([
+                // Post ID column
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->searchable(),
+
+                // Post title column
                 TextColumn::make('title')
                     ->label('Post title')
                     ->searchable()
                     ->limit(50),
 
+                // Likes count column
                 TextColumn::make('likes_count')
                     ->label('Likes')
                     ->icon('heroicon-o-heart')
@@ -48,15 +59,19 @@ class TopLikedPostsWidget extends TableWidget
                     ->badge()
                     ->alignCenter(),
 
+                // Author column
                 TextColumn::make('user.email')
                     ->label('Author'),
 
+                // Image column
                 ImageColumn::make('image')
                     ->disk('public')
                     ->square(),
 
+                // Is Published column
                 IconColumn::make('is_published')->boolean()->alignCenter(),
 
+                // Created At column
                 TextColumn::make('created_at')
                     ->label('Published at')
                     ->date('d.m.Y')

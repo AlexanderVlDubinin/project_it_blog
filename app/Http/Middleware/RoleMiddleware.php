@@ -11,6 +11,8 @@ class RoleMiddleware
     /**
      * Handle an incoming request.
      *
+     * Checks the access rights to the page for the specified user role.
+     *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, ...$roles): Response

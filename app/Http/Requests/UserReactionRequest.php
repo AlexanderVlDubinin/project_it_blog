@@ -12,7 +12,7 @@ class UserReactionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return (bool) $this->user();
+        return (bool) $this->user(); // user must be authenticated
     }
 
     /**
@@ -23,9 +23,9 @@ class UserReactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['required', 'in:post,comment'],
+            'type' => ['required', 'in:post,comment'], // type must be 'post' or 'comment'
             'id' => ['required', 'integer'],
-            'is_like' => ['required', 'boolean'],
+            'is_like' => ['required', 'boolean'], // like or dislike
         ];
     }
 }

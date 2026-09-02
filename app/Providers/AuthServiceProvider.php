@@ -24,6 +24,9 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Global gates
+
+        // admin can do anything
         Gate::before(function (User $user, string $ability) {
             if ($user->role === UserRole::ADMIN) {
                 return true; // admin can do anything
@@ -31,14 +34,17 @@ class AuthServiceProvider extends ServiceProvider
             return null;
         });
 
+        // moderator can manage site
         Gate::define('manage-site', function (User $user) {
             return $user->role === UserRole::MODERATOR;
         });
 
+        // moderator and author can be authors
         Gate::define('can-be-author', function (User $user) {
             return in_array($user->role, [UserRole::MODERATOR, UserRole::AUTHOR]);
         });
 
+        // moderator and owner can change posts
         Gate::define('change-post-action', function (User $user, Post $post) {
             $postOwner = $post->user;
 
@@ -52,6 +58,7 @@ class AuthServiceProvider extends ServiceProvider
                 || $user->id === $post->user_id;
         });
 
+        // owner can do owner actions
         Gate::define('owner-action', function (User $user, Post $post) {
             return $user->id === $post->user_id;
         });

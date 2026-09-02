@@ -6,6 +6,7 @@
             </h2>
 
             <div class="flex justify-between items-center">
+                <!-- Settings: Delete notifications you read after time specified -->
                 <div class="flex items-center space-x-2 px-3 py-0.5 border border-gray-500 rounded-lg shadow-sm">
                     <label for="ttl" class="text-sm text-gray-200 font-medium whitespace-nowrap mt-1">Delete notifications you read after: </label>
 
@@ -22,6 +23,7 @@
                     </form>
                 </div>
 
+                <!-- Settings: Select notification type -->
                 <div class="flex items-center space-x-2 px-3 py-0.5 border border-gray-500 rounded-lg shadow-sm ml-4">
                     <label for="ttl" class="text-sm text-gray-200 font-medium whitespace-nowrap mt-1">Select type: </label>
 
@@ -39,6 +41,7 @@
                     </form>
                 </div>
 
+                <!-- Button: Mark all as read -->
                 @if(auth()->user()->unreadNotifications()->exists())
                     <form action="{{ route('notifications.markAllAsRead') }}" method="POST" class="ml-4">
                         @csrf
@@ -51,6 +54,7 @@
                     </form>
                 @endif
 
+                <!-- Button: Delete all read -->
                 @if(auth()->user()->readNotifications()->exists())
                         <form action="{{ route('notifications.deleteAllRead') }}"
                               method="POST"
@@ -71,14 +75,17 @@
         </div>
     </x-slot>
 
+    <!-- Notifications list -->
     <div class="max-w-7xl mx-auto py-8 px-4">
         <div class="shadow-sm overflow-hidden">
             @forelse($notifications as $notification)
                 @php
+                    // Check if the notification is a comment reply
                     $isCommentReply = ($notification->data['data']['type'] ?? 'default_notification') === 'comment_reply';
-                    $icon = $notification->data['icon'] ?? 'heroicon-o-bell';
-                    $status = $notification->data['status'] ?? 'blue';
+                    $icon = $notification->data['icon'] ?? 'heroicon-o-bell'; // Notification icon
+                    $status = $notification->data['status'] ?? 'blue'; // Notification status
 
+                    // Colors for notifications (depends on the status)
                     $colors = [
                         'warning' => ['bg' => 'bg-amber-100', 'bgExtra' => 'bg-amber-500', 'bgBtn' => 'bg-amber-50 hover:bg-amber-200', 'border' => 'border-amber-400', 'mainText' => 'text-amber-500', 'headerText' => 'text-amber-700', 'subText' => 'text-amber-400'],
                         'success' => ['bg' => 'bg-green-100', 'bgExtra' => 'bg-green-500', 'bgBtn' => 'bg-green-50 hover:bg-green-200', 'border' => 'border-green-400', 'mainText' => 'text-green-500', 'headerText' => 'text-green-700', 'subText' => 'text-green-400'],
@@ -88,6 +95,7 @@
                     ][$status] ?? ['bg' => 'bg-blue-100', 'bgExtra' => 'bg-blue-500', 'bgBtn' => 'bg-blue-50 hover:bg-blue-200', 'border' => 'border-blue-400', 'mainText' => 'text-blue-500', 'headerText' => 'text-blue-700', 'subText' => 'text-blue-400'];//'blue';
                 @endphp
 
+                <!-- Notification block -->
                 <div class="notification-block-{{ $notification->id }} mt-2 p-4 border border-2 {{ $notification->unread() ? $colors['border'] : $colors['border'].' saturate-40' }} rounded-lg flex items-start justify-between {{ $colors['bg'] }}">
 
                     <div class="flex-1">
@@ -100,20 +108,24 @@
                             <!-- Icon -->
                             @svg($icon, $icon . ' w-6 h-6 ' . ($notification->unread() ? $colors['headerText'] : $colors['headerText'].' saturate-40') )
 
+                            <!-- Title -->
                             <h3 class="notification-title-{{ $notification->id }} font-bold text-2xl {{ $notification->unread() ? $colors['headerText'] : $colors['headerText'].' saturate-40' }}">
                                 {{ $notification->data['title'] ?? 'Notification' }}
                             </h3>
                         </div>
 
+                        <!-- Body -->
                         <p class="notification-body-{{ $notification->id }} {{ $notification->unread() ? $colors['mainText'] : $colors['mainText'].' saturate-40' }} text-lg mt-1">
                             {{ $notification->data['body'] ?? '...' }}
                         </p>
 
+                        <!-- Time -->
                         <span class="notification-time-{{ $notification->id }} text-sm {{ $notification->unread() ? $colors['subText'] : $colors['subText'].' saturate-40' }} block mt-2">
                             {{ $notification->created_at->diffForHumans() }}
                         </span>
                     </div>
 
+                    <!-- Button: Mark as Read & Open -->
                     @if($notification->unread() || $isCommentReply)
                     <!-- Action Button (Smart Link) -->
                     <div class="notification-{{ $notification->id }} {{ $isCommentReply ? ($notification->unread() ? 'action-button smart-link' : 'smart-link') : 'action-button' }} ml-4">
@@ -125,6 +137,7 @@
                     @endif
                 </div>
             @empty
+                <!-- No Notification -->
                 <div class="p-8 font-bold text-center text-2xl text-gray-500">
                     You do not have any notifications yet.
                 </div>

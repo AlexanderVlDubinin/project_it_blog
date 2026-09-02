@@ -12,6 +12,9 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
+    /**
+     * Display a list of notifications.
+     */
     public function index(NotificationsFiltersRequest $request, GetDataForNotifications $getDataForNotifications)
     {
         $notificationsData = $getDataForNotifications($request->validated());
@@ -23,6 +26,9 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * Update notification settings (notifications_ttl_days).
+     */
     public function updateSettings(
         UpdateNotificationSettingsRequest $request,
         UpdateNotificationSettings $updateNotificationSettings,
@@ -32,6 +38,11 @@ class NotificationController extends Controller
         return back()->with('success', 'Notification settings have been updated successfully.');
     }
 
+    /**
+     * Mark a notification as read and redirect based on the type of data.
+     * Comment reply - redirect to post with comment anchor
+     * Default - redirect to notifications index
+     */
     public function readAndRedirect($id, MarkNotificationsAsRead $markNotificationsAsRead)
     {
         $data = $markNotificationsAsRead($id);
@@ -46,6 +57,9 @@ class NotificationController extends Controller
         return redirect()->route('notifications.index')->with('success', 'The notification has been read');
     }
 
+    /**
+     * Mark all notifications as read.
+     */
     public function markAllAsRead(Request $request, MarkNotificationsAsRead $markNotificationsAsRead)
     {
         $markNotificationsAsRead();
@@ -54,6 +68,9 @@ class NotificationController extends Controller
         return back()->with('success', 'All notifications are marked as read.');
     }
 
+    /**
+     * Delete all read notifications.
+     */
     public function deleteAllRead(DeleteReadNotifications $deleteReadNotifications)
     {
         $deleteReadNotifications();

@@ -19,6 +19,9 @@ class Like extends Model
         ];
     }
 
+    /**
+     * Get the likeable model.
+     */
     public function likeable(): MorphTo
     {
         return $this->morphTo();

@@ -5,6 +5,7 @@
                 {{ __('List of Posts') }}
             </h2>
 
+            <!-- New Post button -->
             @can('can-be-author')
                 <a href="{{ route('posts.create') }}">
                     <button class="flex items-center justify-between text-gray-800 dark:text-gray-200 bg-indigo-500 rounded-lg px-4 py-2 button-back cursor-pointer">
@@ -17,8 +18,10 @@
 
     <div class="py-12 text-gray-800 dark:text-gray-200">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Search/Filter form -->
             <form action="{{ route('posts.index') }}" method="GET" class="flex w-full gap-2">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full items-start">
+                    <!-- Search by field -->
                     <div class="flex flex-col gap-1 md:col-span-4">
                         <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Search by</label>
                         <input
@@ -33,6 +36,7 @@
                         @enderror
                     </div>
 
+                    <!-- Filter by tag -->
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Tag</label>
                         <select name="tag_id" class="w-full border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm h-9.5">
@@ -49,6 +53,7 @@
                         @enderror
                     </div>
 
+                    <!-- Filter by author -->
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Author</label>
                         <select name="user_id" class="w-full border border-border bg-white dark:bg-gray-800 rounded-lg px-4 py-2 text-sm h-9.5">
@@ -65,6 +70,7 @@
                         @enderror
                     </div>
 
+                    <!-- Filter by date from (created_at date) -->
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Date from</label>
                         <input
@@ -79,6 +85,7 @@
                         @enderror
                     </div>
 
+                    <!-- Filter by date to (created_at date) -->
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Date to</label>
                         <input
@@ -95,8 +102,12 @@
                 </div>
 
                 <div class="{{ request()->hasAny(['user_id']) }} flex flex-col">
-                    <button type="submit" class="max-h-9.5 mt-5 border border-border border-gray-700 dark:border-gray-300 rounded-lg px-4 py-2 button-back cursor-pointer">Search</button>
+                    <!-- Search button -->
+                    <button type="submit" class="max-h-9.5 mt-5 border border-border border-gray-700 dark:border-gray-300 rounded-lg px-4 py-2 button-back cursor-pointer">
+                        Search
+                    </button>
 
+                    <!-- Reset button (if any filters are applied) -->
                     @if(request()->filled('q') || request()->filled('user_id') || request()->filled('date_from') || request()->filled('date_to') || request()->filled('tag_id')/*request()->hasAny(['q', 'user_id', 'date_from', 'date_to'])*/)
                         <a href="{{ route('posts.index') }}"
                            class="mt-7.5 border border-red-500 text-red-500 rounded-lg px-4 py-2 text-sm font-medium hover:bg-red-50 dark:hover:bg-gray-800 flex items-center transition-colors cursor-pointer">
@@ -106,12 +117,14 @@
                 </div>
             </form>
 
+            <!-- Posts grid -->
             <div class="grid grid-cols-2">
                 @forelse ($posts as $post)
                     <div class="p-2">
                         <div class="mt-4 border border-border {{ $post->is_published ? 'border-gray-700 dark:border-gray-300' : 'border-red-500' }} bg-white dark:bg-gray-800 rounded-lg px-4 py-2 h-full flex flex-col justify-between">
                             <div>
                                 <div class="flex items-center justify-between w-full items-start">
+                                    <!-- Post title -->
                                     <h2 class="mt-6 text-head text-indigo-400 font-bold text-4xl underline">
                                         <a href="/posts/{{ $post->id }}">
                                             {{ $post->title }}
@@ -121,6 +134,7 @@
                                         </a>
                                     </h2>
 
+                                    <!-- Post actions (Edit, Move to Trash) -->
                                     @can('change-post-action', $post)
                                     <div class="sm:flex sm:items-center sm:ms-2 mt-6">
                                         <x-dropdown align="right" width="auto">
@@ -134,6 +148,7 @@
 
                                             <x-slot name="content">
                                                 @auth()
+                                                    <!-- Edit -->
                                                     <x-dropdown-link :href="route('posts.edit', $post->id)">
                                                         <div class="flex items-center justify-between w-full">
                                                             <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5 mr-2">
@@ -143,6 +158,7 @@
                                                         </div>
                                                     </x-dropdown-link>
 
+                                                    <!-- Move to Trash -->
                                                     <x-dropdown-link href="#"
                                                                      data-url="{{ route('posts.destroy', $post) }}"
                                                                      @click.prevent="if (confirm('Are you sure you want to delete this post?')) { $dispatch('set-post-delete-url', $el.dataset.url) }">
@@ -160,12 +176,14 @@
                                     @endcan
                                 </div>
 
+                                <!-- Authored by -->
                                 <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400 mt-2">
                                     <i>
                                         <b>Authored by: </b>
                                         {{ $post->user->name }} ({{ $post->user->email }})
                                     </i>
                                 </div>
+                                <!-- Created at -->
                                 <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400">
                                     <i>
                                         <b>Created at: </b>
@@ -173,10 +191,13 @@
                                     </i>
                                 </div>
 
+                                <!-- Content preview (limited words) -->
                                 <div class="mt-4">
                                     <p>{{ Str::words($post->content, 20) }}</p>
                                 </div>
                             </div>
+
+                            <!-- Image -->
                             @if($post->image)
                                 <div class="mt-4 flex justify-center w-full">
                                     <img src="{{ $post->image_url }}"
@@ -184,7 +205,9 @@
                                          class="w-1/2 h-auto object-cover rounded-md">
                                 </div>
                             @endif
+
                             <div class="mt-2 flex items-center justify-between w-auto">
+                                <!-- Comments count -->
                                 <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400">
                                     <i>
                                         <b>Comments: </b>
@@ -192,6 +215,7 @@
                                     </i>
                                 </div>
 
+                                <!-- Likes -->
                                 @if($post->is_published && $post->user_id !== auth()->id())
                                 <div class="reaction-block post-reaction-block flex items-center gap-2" data-type="post" data-id="{{ $post->id }}">
                                     @php $hasLiked = $post->userReaction?->is_like === true; @endphp
@@ -211,6 +235,8 @@
                                 </div>
                                 @endif
                             </div>
+
+                            <!-- Tags -->
                             @if($post->tags->isNotEmpty())
                                 <div class="flex flex-wrap gap-2 min-h-8 p-2 rounded-xl">
                                     <b class="text-gray-600 dark:text-gray-400">Tags: </b>
@@ -226,11 +252,13 @@
                         </div>
                     </div>
                 @empty
+                    <!-- No posts message -->
                     <h2 class="text-4xl font-bold text-indigo-600 flex item-center">
                         No posts at this time
                     </h2>
                 @endforelse
 
+                <!-- Delete form -->
                 <form id="post-delete-form"
                       x-data="{ action: '' }"
                       :action="action"

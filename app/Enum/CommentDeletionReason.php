@@ -4,6 +4,10 @@ namespace App\Enum;
 
 enum CommentDeletionReason: string
 {
+    /**
+     * Enum values
+     * Reasons for deleting a comment
+     */
     case SPAM = 'spam';
     case PROFANITY = 'profanity';
     case FLOOD = 'flood / offtop';
@@ -12,7 +16,9 @@ enum CommentDeletionReason: string
     case SELF_DELETE = 'self_delete';
     case OTHER = 'other';
 
-    // Вспомогательный метод для вывода в выпадающий список
+    /**
+     * Auxiliary method for displaying in a drop-down list
+     */
     public static function labels(): array
     {
         return [

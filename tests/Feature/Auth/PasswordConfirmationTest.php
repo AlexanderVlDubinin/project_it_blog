@@ -21,6 +21,7 @@ test('password can be confirmed', function () {
     $response->assertSessionHasNoErrors();
 });
 
+// password confirmation with wrong password testing.
 test('password is not confirmed with invalid password', function () {
     $user = User::factory()->create();
 

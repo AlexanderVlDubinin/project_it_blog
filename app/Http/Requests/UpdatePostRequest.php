@@ -12,7 +12,7 @@ class UpdatePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return (bool) $this->user(); // user must be authenticated
     }
 
     /**
@@ -50,6 +50,9 @@ class UpdatePostRequest extends FormRequest
         ];
     }
 
+    /**
+     * Prepare the data for validation.
+     */
     protected function prepareForValidation(): void
     {
         $this->merge([

@@ -51,6 +51,7 @@ class CommentSeeder extends Seeder
      */
     private function createRepliesRecursively(Collection $parentComments, int $postId, Collection $userIds, int $currentDepth, int $maxDepth): void
     {
+        // If we have reached the maximum depth, we stop the recursion
         if ($currentDepth > $maxDepth) {
             return;
         }

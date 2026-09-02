@@ -37,7 +37,7 @@ class CustomUserNotification extends Notification implements ShouldQueue // Shou
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $currentColors = $this->getEmailColors($this->type);
+        $currentColors = $this->getEmailColors($this->type); // Get colors based on type
 
         return (new MailMessage)
             ->subject($this->title)
@@ -65,6 +65,10 @@ class CustomUserNotification extends Notification implements ShouldQueue // Shou
         ];
     }
 
+    /**
+     * Get the colors for the email notification.
+     * Colors are based on the type of notification.
+     */
     protected function getEmailColors(string $type): array
     {
         $colors = [

@@ -19,6 +19,9 @@ use Illuminate\Support\Collection;
 
 class PostsTable
 {
+    /**
+     * Get the table configuration.
+     */
     public static function configure(Table $table): Table
     {
         return $table
@@ -27,27 +30,35 @@ class PostsTable
                 'reactions as likes_count' => fn ($q) => $q->where('is_like', true),
             ]))
             ->columns([
+                // The post title column
                 TextColumn::make('title')
                     ->searchable()
                     ->sortable(),
+
+                // The post publish status column
                 IconColumn::make('is_published')
                     ->boolean()
                     ->sortable()
                     ->alignCenter(),
-                //ImageColumn::make('image'),
+
+                // The post image column
                 ImageColumn::make('image')
                     ->disk('public')
                     ->square(),
-                /*IconColumn::make('image') // icons
-                    ->label('Image')
-                    ->boolean() // Turns any filled-in value to true (if not null)
-                    ->trueIcon('heroicon-o-check-circle')  // The green checkmark icon
-                    ->falseIcon('heroicon-o-x-circle')     // The red cross icon
-                    ->trueColor('success')
-                    ->falseColor('danger'),*/
+//                IconColumn::make('image') // icons
+//                    ->label('Image')
+//                    ->boolean() // Turns any filled-in value to true (if not null)
+//                    ->trueIcon('heroicon-o-check-circle')  // The green checkmark icon
+//                    ->falseIcon('heroicon-o-x-circle')     // The red cross icon
+//                    ->trueColor('success')
+//                    ->falseColor('danger'),
+
+                // The post author column
                 TextColumn::make('user.email')
                     ->searchable()
                     ->sortable(),
+
+                // The post likes column
                 TextColumn::make('likes_count')
                     ->label('Likes')
                     ->icon('heroicon-o-heart') // Heart icon
@@ -55,23 +66,35 @@ class PostsTable
                     ->badge()                  // Display as a badge
                     ->alignCenter()
                     ->sortable(),
+
+                // The post deleted_at column
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // The post created_at column
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // The post updated_at column
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // The post ID column
+                TextColumn::make('id')
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make(), // Add the Trashed filter
             ])
             ->recordActions([
+                // Edit Action: moderator can not edit admin posts
                 EditAction::make()
                     ->disabled(fn (Post $record): bool =>
                         auth()->user()->role === UserRole::MODERATOR && $record->user?->role === UserRole::ADMIN
@@ -89,6 +112,7 @@ class PostsTable
                                 $record->delete();
                             });
                         }),
+                    // Force Delete Action: moderator can not force delete admin posts
                     ForceDeleteBulkAction::make()
                         ->action(function (Collection $records) {
                             $records->each(function (Post $record) {

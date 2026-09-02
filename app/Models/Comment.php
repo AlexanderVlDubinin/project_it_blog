@@ -25,7 +25,7 @@ class Comment extends Model
 
     /**
      * Dynamic control of the comment text.
-     * If the comment is deleted, we print a stub instead of the original text.
+     * If the comment is soft deleted, we print a stub instead of the original text.
      */
     protected function body(): Attribute
     {
@@ -45,8 +45,8 @@ class Comment extends Model
         );
     }
 
-    // Connections for a tree structure
     /**
+     * Connections for a tree structure
      * Get a parent's comment (which has been answered).
      */
     public function parent(): BelongsTo
@@ -79,7 +79,10 @@ class Comment extends Model
         return $this->children()->with('allChildren');
     }
 
-    // Basic connections
+    /**
+     * Basic connections
+     * Get the user who posted the comment.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id')->withDefault([
@@ -87,6 +90,9 @@ class Comment extends Model
         ]);
     }
 
+    /**
+     * Get the post to which the comment belongs.
+     */
     public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);

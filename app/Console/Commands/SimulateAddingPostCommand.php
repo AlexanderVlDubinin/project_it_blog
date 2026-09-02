@@ -26,14 +26,21 @@ class SimulateAddingPostCommand extends Command
 
     /**
      * Execute the console command.
+     *
+     * Command description:
+     * - Simulates the addition of a post by one of the authors.
+     * - News articles from the Internet are used as new posts.
+     * - Actions are logged in the 'custom-commands' channel.
      */
     public function handle(): int
     {
+        // Get command arguments
         $newsNum = $this->argument('newsNum') ?? 1;
         $userId = $this->argument('userId') ?? 0;
         $dryRun = $this->option('dryRun') ?? false;
         $addTags = $this->option('addTags') ?? false;
 
+        // Validate user ID
         $validatedData = $this->addingPost->beforeImportNews($userId);
         if ($validatedData['status'] === 'error') {
             Log::channel('custom-commands')->error($validatedData['message']);
@@ -43,6 +50,7 @@ class SimulateAddingPostCommand extends Command
         }
         $userId = $validatedData['user_id'];
 
+        // Log start message
         $startMessage = 'Start importing news with parameters: newsNum = '.$newsNum;
         $startMessage .= $userId ? ', userId = '.$userId : '';
         $startMessage .= $addTags ? ', addTags = true' : '';
@@ -51,6 +59,7 @@ class SimulateAddingPostCommand extends Command
         $logChannel = 'custom-commands';
         Log::channel($logChannel)->info($startMessage);
 
+        // Import news - main logic
         $result = $this->addingPost->importNews($userId, $logChannel, $newsNum, $addTags, $dryRun);
 
         if ($result['status'] === 'error') {
@@ -60,6 +69,7 @@ class SimulateAddingPostCommand extends Command
             return CommandAlias::FAILURE;
         }
 
+        // Log end message
         Log::channel($logChannel)->info($result['message']);
         $this->info($result['message']);
 

@@ -77,6 +77,9 @@ class CommentController extends Controller
         return back()->with('success', 'The comment has been successfully updated!');
     }
 
+    /**
+     * Soft delete comment.
+     */
     public function delete(SoftDeleteCommentRequest $request, Comment $comment, SoftDeleteComment $softDeleteComment)
     {
         $this->authorize('delete', $comment);
@@ -86,6 +89,9 @@ class CommentController extends Controller
         return back()->with('success', $message);
     }
 
+    /**
+     * Restore soft deleted comment.
+     */
     public function restore(Comment $comment, RestoreComment $restoreComment)
     {
         $this->authorize('restore', $comment);

@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
+// Notification Mark as read button testing.
 test('notification: clicking Mark as read button makes notification read', function () {
     $user = User::factory()->create();
     $notification = DatabaseNotification::factory()
@@ -30,6 +31,7 @@ test('notification: clicking Mark as read button makes notification read', funct
     ;
 });
 
+// Notification Mark as read & Open button testing.
 test('notification (comment answer): clicking Mark as read & Open button makes notification read & redirects to post page', function () {
     $user = User::factory()->create();
     $commentResponder = User::factory()->create(['name' => 'Comment Responder']);
@@ -70,6 +72,7 @@ test('notification (comment answer): clicking Mark as read & Open button makes n
     ;
 });
 
+// Notification Mark all as read button testing.
 test('notifications: clicking Mark all as read button makes all unread notification read', function () {
     $user = User::factory()->create();
     $notification1 = DatabaseNotification::factory()
@@ -100,6 +103,7 @@ test('notifications: clicking Mark all as read button makes all unread notificat
     ;
 });
 
+// Notification Clear all read button testing.
 test('notifications: clicking Clear all read button deletes all read notifications', function () {
     $user = User::factory()->create();
     $notification1 = DatabaseNotification::factory()

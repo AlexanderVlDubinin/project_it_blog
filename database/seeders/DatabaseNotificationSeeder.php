@@ -25,7 +25,7 @@ class DatabaseNotificationSeeder extends Seeder
             return;
         }
         $countToTake = ceil($userIds->count() * 0.20); // 20% of users
-        $userIds = $userIds->random($countToTake);
+        $userIds = $userIds->random($countToTake); // Randomly select 20% of users
 
         foreach ($userIds as $userId) {
             $baseNow = now()->toImmutable();
@@ -58,6 +58,7 @@ class DatabaseNotificationSeeder extends Seeder
         }
 
         // NOTIFICATIONS OF REPLIES TO COMMENTS
+        // Get all replies to comments
         $commentReplies = DB::table('comments as child')
             ->leftJoin('comments as parent', 'child.parent_id', '=', 'parent.id')
             ->leftJoin('users as responder', 'child.user_id', '=', 'responder.id')
@@ -91,7 +92,7 @@ class DatabaseNotificationSeeder extends Seeder
             ];
 
             DatabaseNotification::factory()
-                ->read($readAt)
+                ->read($readAt) // string with date or null
                 ->filamentData([
                     'title' => 'A new response to your comment',
                     'body' => $comment->responder_name . ' answered: "' . $comment->body. '"',

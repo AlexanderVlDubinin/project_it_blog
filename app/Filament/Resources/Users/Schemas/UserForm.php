@@ -12,6 +12,9 @@ use Illuminate\Validation\Rules\Password;
 
 class UserForm
 {
+    /**
+     * Configure the user form.
+     */
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -19,12 +22,14 @@ class UserForm
                 // Wrapping the fields in a visual block card
                 Section::make('User Information')
                     ->schema([
+                        // User Name
                         TextInput::make('name')
                             ->required()
                             ->string()
                             ->minLength(3)
                             ->maxLength(255),
 
+                        // User Email
                         TextInput::make('email')
                             ->label('Email address')
                             ->email()
@@ -34,6 +39,7 @@ class UserForm
                             ->unique()
                             ->maxLength(255),
 
+                        // User Password
                         TextInput::make('password')
                             ->password()
                             // A password is required only when creating a new user
@@ -46,6 +52,7 @@ class UserForm
                             ])
                             ->maxLength(255),
 
+                        // User Password Confirmation
                         TextInput::make('password_confirmation')
                             ->label('Password confirmation')
                             ->password()
@@ -53,6 +60,7 @@ class UserForm
                             ->required(fn ($get) => filled($get('password'))) // required only if password is filled
                             ->dehydrated(false), // do not save to database
 
+                        // User Role
                         Select::make('role')
                             //->options(UserRole::class)
                             ->options(function (): array {
@@ -73,26 +81,5 @@ class UserForm
                             ->required(),
                     ])->columns(1), // Display fields in 1 column
             ]);
-
-        /*
-        // default
-        return $schema
-            ->components([
-                TextInput::make('name')
-                    ->required(),
-                TextInput::make('email')
-                    ->label('Email address')
-                    ->email()
-                    ->required(),
-                DateTimePicker::make('email_verified_at'),
-                TextInput::make('password')
-                    ->password()
-                    ->required(),
-                Select::make('role')
-                    ->options(UserRole::class)
-                    ->default('user')
-                    ->required(),
-            ]);
-        */
     }
 }

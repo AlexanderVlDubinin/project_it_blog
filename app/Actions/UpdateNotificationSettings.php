@@ -5,7 +5,8 @@ namespace App\Actions;
 class UpdateNotificationSettings
 {
     /**
-     * Create a new class instance.
+     * Update notification settings.
+     * notifications_ttl_days - waiting time for notifications after reading and before deleting
      */
     public function __invoke(array $data): void
     {

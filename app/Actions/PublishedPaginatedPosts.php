@@ -11,15 +11,17 @@ use Illuminate\Support\Facades\Gate;
 class PublishedPaginatedPosts
 {
     /**
-     * Create a new class instance.
+     * Get a list of published posts with filtering (if specified)
+     * and with authors, number of comments, tags, likes, pagination.
      */
     public function __invoke(array $filters = [], $limit = 10): array // LengthAwarePaginator (for posts only)
     {
-        $canManageSite = Gate::allows('manage-site');
+        $canManageSite = Gate::allows('manage-site'); // for users who can manage site
         $currentUserId = auth()->id();
 
         $postsQuery = Post::query();
 
+        // Filter published posts (for users who can not manage site)
         if (!$canManageSite) {
             $postsQuery->where(function ($query) use ($currentUserId) {
                 // Show the post if it is published...
@@ -32,13 +34,14 @@ class PublishedPaginatedPosts
             });
         }
 
+        // Filter possible authors (admin, moderator, author)
         $postsQuery->whereHas('user', function ($query) {
             $query->whereIn('role', ['admin', 'moderator', 'author']);
         });
 
         $posts = $postsQuery
             // Line search (q)
-            ->when(!empty($filters['q']), function ($query) use ($filters) {
+            ->when(!empty($filters['q']), function ($query) use ($filters) { // search by ID, title or content
                 $search = trim((string) ($filters['q'] ?? ''));
                 $query->where(function ($q) use ($search) {
                     if (is_numeric($search)) {
@@ -72,7 +75,8 @@ class PublishedPaginatedPosts
             })
 
             ->with(['user', 'tags', 'userReaction']) // adding - user and tags and user reaction
-            ->withCount('comments')
+            ->withCount('comments') // number of comments
+            // number of user reactions (likes and dislikes)
             ->withCount([
                 'reactions as likes_count' => function ($query) {
                     $query->where('is_like', true);
@@ -86,6 +90,7 @@ class PublishedPaginatedPosts
             ->paginate($limit)
             ->withQueryString();
 
+        // Get authors
         $authors = User::query()
             ->whereIn('role', ['admin', 'moderator', 'author'])
             ->whereHas('posts', function ($query) use ($canManageSite) {
@@ -96,6 +101,7 @@ class PublishedPaginatedPosts
             ->orderBy('name')
             ->get();
 
+        // Get tags
         $tags = Tag::query()->orderBy('name')->get();
 
         return [

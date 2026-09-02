@@ -39,14 +39,17 @@ class CommentReplied extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
-    }
+//    public function toMail(object $notifiable): MailMessage
+//    {
+//        return (new MailMessage)
+//            ->line('The introduction to the notification.')
+//            ->action('Notification Action', url('/'))
+//            ->line('Thank you for using our application!');
+//    }
 
+    /**
+     * Get the database representation of the notification.
+     */
     public function toDatabase($notifiable): array
     {
         // The basic array of the Filament
@@ -72,14 +75,12 @@ class CommentReplied extends Notification
      *
      * @return array<string, mixed>
      */
-    /*
-    public function toArray(object $notifiable): array
-    {
-        return array_merge($this->toDatabase($notifiable), [
-            'type' => 'comment_reply', // for filter in UI
-            'post_id' => $this->comment->post_id,
-            'comment_id' => $this->comment->id,
-        ]);
-    }
-    */
+//    public function toArray(object $notifiable): array
+//    {
+//        return array_merge($this->toDatabase($notifiable), [
+//            'type' => 'comment_reply', // for filter in UI
+//            'post_id' => $this->comment->post_id,
+//            'comment_id' => $this->comment->id,
+//        ]);
+//    }
 }

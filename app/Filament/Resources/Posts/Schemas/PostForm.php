@@ -12,6 +12,9 @@ use Filament\Schemas\Schema;
 
 class PostForm
 {
+    /**
+     * Get the form schema.
+     */
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -19,21 +22,28 @@ class PostForm
                 // Wrapping the fields in a visual block card
                 Section::make('Post Information')
                     ->schema([
+                        // The post title
                         TextInput::make('title')
                             ->required()
                             ->string()
                             ->minLength(3)
                             ->maxLength(255)
                             ->columnSpanFull(),
+
+                        // The post content
                         Textarea::make('content')
                             ->required()
                             ->string()
                             ->minLength(20)
                             ->rows(12)
                             ->columnSpanFull(),
+
+                        // The post publish status
                         Toggle::make('is_published')
                             ->required()
                             ->rules(['boolean']),
+
+                        // The post image
                         FileUpload::make('image')
                             ->directory('posts')
                             ->disk('public')
@@ -42,12 +52,16 @@ class PostForm
                             ->maxSize(2048)
                             ->nullable()
                             ->columnSpanFull(),
+
+                        // The post author
                         Select::make('user_id')
                             ->relationship('user', 'email')
                             ->required()
                             ->searchable()
                             ->preload()
                             ->columnSpanFull(),
+
+                        // The post tags
                         Select::make('tags') // The name must strictly match the name of the communication method in the model (tags)
                             ->relationship(titleAttribute: 'name') // 'name' is the column with the tag name in the tags table
                             ->multiple() // Allows to select multiple tags at the same time

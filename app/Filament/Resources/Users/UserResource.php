@@ -20,8 +20,15 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
+    /**
+     * The navigation sort order (order in the navigation/side menu).
+     */
     protected static ?int $navigationSort = 1;
 
+    /**
+     * The record title attribute.
+     * (Global Search + Relation Manager Titles)
+     */
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
@@ -41,6 +48,9 @@ class UserResource extends Resource
         ];
     }
 
+    /**
+     * The resource pages.
+     */
     public static function getPages(): array
     {
         return [

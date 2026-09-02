@@ -5,7 +5,7 @@ namespace App\Actions;
 class DeleteReadNotifications
 {
     /**
-     * Create a new class instance.
+     * Delete all read notifications for the authenticated user.
      */
     public function __invoke(): void
     {
