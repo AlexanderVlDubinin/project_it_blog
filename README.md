@@ -126,5 +126,5 @@ $env:PWDEBUG=0
 ---
 
 ## 📂 Architectural features of the assembly
-*   **Differentiation of rights:** The PHP container runs under the local user `laravel' with `UID:GID 1000:1000`, solving any `permission denied` problems on Linux hosts.
+*   **Differentiation of rights:** The PHP container runs under the local user `laravel` with `UID:GID 1000:1000`, solving any `permission denied` problems on Linux hosts.
 *   **Data persistence:** The folders `pgdata` (PostgreSQL) and `redisdata' (Redis) are placed in named Docker Volumes — posts, likes and cache will not disappear when `docker compose down' is called.
