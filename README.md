@@ -1,58 +1,130 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📝 Laravel IT Blog (Pet Project)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern and functional blog with tree-like comments, advanced filtering, a flexible notification system, a full-fledged admin panel and a content parser. The project is fully deployed in an isolated Docker environment based on Alpine Linux.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🛠 Technology stack and versions
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Infrastructure (Docker)
+*   **PHP:** `8.4.23` (FPM, Alpine) + Extensions: `pdo_pgsql`, `mbstring`, `gd` (FreeType/JPEG), `intl`, `sockets`, `redis`
+*   **Web Server:** Nginx `1.31.3`
+*   **Database:** PostgreSQL `16.14`
+*   **Cache & Queue:** Redis `7-alpine`
+*   **Mail Testing:** Mailpit (SMTP server and Web interface)
+*   **Node.js:** `v24.18.0` (LTS) + Vite (with HMR support)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Backend & Frontend
+*   **Framework:** Laravel `v13.21.1`
+*   **Authentication:** Laravel Breeze `v2.4.2`
+*   **Admin Panel:** Filament PHP `v5.7.3`
+*   **Testing:** `Pest v4.7.5` + `pest-plugin-browser v4.3.1` (Playwright & Chromium)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🌟 Key features of the application
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 📰 Public part (Website)
+*   **Posts:** View the list and the detailed page. Creation and editing by the authors. Support for images, tags, and the Soft Delete system.
+*   **Advanced filtering:** Search by ID, title (part of the title), part of the content, author, tags, and date range (from and to) with the ability to instantly reset filters. Pagination of the list.
+*   **Tree-like comments:** Endless nesting of responses (cascading structure), comment pagination. Authors can edit their comments. Support for Soft/Hard delete.
+*   **Rating system (Likes):** 
+    *   For posts: likes only (`+1`).
+    *   For comments: likes and dislikes with the calculation of the total live rating (total rating = `Likes` minus `Dislikes').
+*   **Smart Notifications (Database & Mail):** 
+    *   They are triggered when responding to a comment or are sent manually from the admin panel.
+    *   Filtering by type.
+    *   Notifications of responses contain a "smart" button link that redirects the user to the post page and automatically scrolls to the desired comment.
+    *   **Auto-deletion:** Read notifications are deleted automatically after a user-configured time interval (30 days by default) or manually.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### 🛡 Admin Panel (Filament)
+*   **Dashboard:** 
+    *   Interactive widget for the dynamics of likes/dislikes in time.
+    *   Top 5 most popular posts of the application (by the number of likes).
+*   **User Management (Users):** CRUD with pagination and end-to-end search.
+*   **Post management (Posts):** Full-fledged CRUD, bucket management (Soft Delete / Restore / Hard Delete). The ability to create new tags on the fly directly in the post editing form.
+*   **Comment Management:** Available directly on the edit page of the linked post.
+*   **Tag Management (Tags):** CRUD with search and pagination.
+*   **Sending notifications (Notification Center):**
+    *   4 types: `info`, `warning`, `danger`, `success`.
+    *   Channels: Email, Database (or both).
+    *   Targeting: A specific user, a group by role, or mass sending to everyone.
+    *   Dynamic icon selection from the `Heroicons` pack.
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## ⚙️ Console commands (Automation and CRON)
 
+*   `php artisan notifications:clear-old-read` — It runs daily (CRON). Checks users' personal settings and permanently deletes read notifications that have expired.
+*   `php artisan simulate:adding-post` — Imitation of the activity of the authors. The console command parses the latest articles from [TechCrunch](https://techcrunch.com ), downloads content, titles, and covers (saving images locally to disk), and then generates new posts in the database.
+
+---
+
+## 🚀 Quick launch in Docker
+
+### 1. Environment preparation
 ```bash
-composer require laravel/boost --dev
+git clone https://github.com/AlexanderVlDubinin/project_it_blog.git
+cd <project-folder-name>
+cp .env.example .env
+```
+*Make sure that the connections in the `.env` file lead to container hosts: `DB_HOST=postgres`, `REDIS_HOST=redis`, `MAIL_HOST=mailpit'.*
 
-php artisan boost:install
+### 2. Assembling and launching containers
+The Node container will automatically pull up the 'npm install` dependencies and start the Vite server.
+```bash
+docker compose up -d --build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 3. Rolling out demo data (Filling in the database)
+The project has set up complex factories and siders (Users, Posts, Comments, Tags, Likes, Notifications):
+```bash
+# Installing backend dependencies
+docker compose exec php composer install
 
-## Contributing
+# Key generation and migration with fake data
+docker compose exec php php artisan key:generate
+docker compose exec php php artisan migrate --seed
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🌐 Ports and access to services
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Service | Local URL / Address | Port in Docker |
+| :--- | :--- | :--- |
+| **Web App (Nginx)** | [http://localhost:8080](http://localhost:8080) | `80` |
+| **The Filament Panel** | [http://localhost:8080/admin](http://localhost:8080/admin) | `80` |
+| **Vite Dev Server** | [http://localhost:5173](http://localhost:5173) | `5173` |
+| **Mailpit UI** | [http://localhost:8025](http://localhost:8025) | `8025` |
+| **PostgreSQL** | `localhost:5432` | `5432` |
+| **Redis** | `localhost:6379` | `6379` |
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🧪 Testing (Pest + Playwright)
 
-## License
+The Pest environment is used to run tests (including complex integration and browser scenarios via Playwright/Chromium). The Chromium system environment for Alpine is already configured inside the PHP container.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Running the entire test package (except browser tests):
+```bash
+docker compose exec php php vendor/bin/pest
+```
+Running browser tests (in the background, without launching the browser):
+```bash
+php artisan test tests/Browser/
+```
+Running browser tests (with browser launch):
+```bash
+$env:PWDEBUG=1; php artisan test tests/Browser/
+```
+after completing the browser tests and launching the browser, do:
+```bash
+$env:PWDEBUG=0
+```
+
+---
+
+## 📂 Architectural features of the assembly
+*   **Differentiation of rights:** The PHP container runs under the local user `laravel' with `UID:GID 1000:1000`, solving any `permission denied` problems on Linux hosts.
+*   **Data persistence:** The folders `pgdata` (PostgreSQL) and `redisdata' (Redis) are placed in named Docker Volumes — posts, likes and cache will not disappear when `docker compose down' is called.
