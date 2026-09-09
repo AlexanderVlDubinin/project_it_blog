@@ -11,6 +11,7 @@
         "guava/filament-icon-picker": "^5.0",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
+        "livewire/livewire": "^4.4",
         "symfony/css-selector": "^8.1",
         "symfony/dom-crawler": "^8.1"
     },

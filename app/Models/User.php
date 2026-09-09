@@ -19,6 +19,8 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $perPage = 10; // Redefining the standard perPage property
+
     /**
      * Get the attributes that should be cast.
      *
