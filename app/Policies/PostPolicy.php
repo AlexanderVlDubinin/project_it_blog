@@ -75,6 +75,12 @@ class PostPolicy
         return $post->user_id === $user->id || $user->role === UserRole::MODERATOR;
     }
 
+    public function deleteAny(User $user): bool
+    {
+        // only admin and moderator can delete posts
+        return $user->role === UserRole::MODERATOR;
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

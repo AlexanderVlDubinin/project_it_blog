@@ -14,7 +14,7 @@ class PublishedPaginatedPosts
      * Get a list of published posts with filtering (if specified)
      * and with authors, number of comments, tags, likes, pagination.
      */
-    public function __invoke(array $filters = [], $limit = 10): array // LengthAwarePaginator (for posts only)
+    public function __invoke(array $filters = []): array // LengthAwarePaginator (for posts only)
     {
         $canManageSite = Gate::allows('manage-site'); // for users who can manage site
         $currentUserId = auth()->id();
@@ -87,7 +87,7 @@ class PublishedPaginatedPosts
             ])
             ->orderByDesc('created_at')
             ->orderBy('id')
-            ->paginate($limit)
+            ->paginate()
             ->withQueryString();
 
         // Get authors

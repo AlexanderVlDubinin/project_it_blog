@@ -102,26 +102,9 @@ class PostsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->action(function (Collection $records) {
-                            $records->each(function (Post $record) {
-                                // moderator can not delete admin posts
-                                if (auth()->user()?->role === UserRole::MODERATOR && $record->user?->role === UserRole::ADMIN) {
-                                    return;
-                                }
-                                $record->delete();
-                            });
-                        }),
+                    DeleteBulkAction::make()->authorizeIndividualRecords(),
                     // Force Delete Action: moderator can not force delete admin posts
-                    ForceDeleteBulkAction::make()
-                        ->action(function (Collection $records) {
-                            $records->each(function (Post $record) {
-                                if (auth()->user()?->role === UserRole::MODERATOR && $record->user?->role === UserRole::ADMIN) {
-                                    return;
-                                }
-                                $record->forceDelete();
-                            });
-                        }),
+                    ForceDeleteBulkAction::make()->authorizeIndividualRecords(),
                     RestoreBulkAction::make(),
                 ]),
             ]);

@@ -42,7 +42,7 @@ class CommentPolicy
      */
     public function create(User $user): bool
     {
-        return false; // False for all (except admin) users (no creation allowed)
+        return $user->role === UserRole::MODERATOR; // False for all (except admin) users (no creation allowed)
     }
 
     /**
@@ -56,7 +56,13 @@ class CommentPolicy
         }
 
         // other users can update their own non-deleted comments
-        return $comment->user_id === $user->id && !$comment->is_deleted;
+        return $this->isStaff($user, $comment) || ($comment->user_id === $user->id && !$comment->is_deleted);
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        // only admin and moderator can delete comments
+        return $user->role === UserRole::MODERATOR;
     }
 
     /**

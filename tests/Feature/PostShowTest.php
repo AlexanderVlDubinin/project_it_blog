@@ -859,10 +859,10 @@ test('renders like/dislike icons not filled and with currentColor if current use
     ];
 
     $response->assertStatus(200)
-        ->assertSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600')
-        ->assertDontSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600 text-green-600')
-        ->assertSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600')
-        ->assertDontSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600 text-red-600')
+        ->assertSee('js-reaction-btn cursor-pointer flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600')
+        ->assertDontSee('js-reaction-btn cursor-pointer flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600 text-green-600')
+        ->assertSee('js-reaction-btn cursor-pointer flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600')
+        ->assertDontSee('js-reaction-btn cursor-pointer flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600 text-red-600')
         ->assertSeeInOrder($commentLikeDislikeArray, false);
 });
 
@@ -906,9 +906,9 @@ test('renders like icon filled green if current user has reacted (dislike - not 
     ];
 
     $response->assertStatus(200)
-        ->assertSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600 text-green-600')
-        ->assertSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600')
-        ->assertDontSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600 text-red-600')
+        ->assertSee('js-reaction-btn cursor-pointer flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600 text-green-600')
+        ->assertSee('js-reaction-btn cursor-pointer flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600')
+        ->assertDontSee('js-reaction-btn cursor-pointer flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600 text-red-600')
         ->assertSeeInOrder($commentLikeDislikeArray, false);
 });
 
@@ -952,9 +952,9 @@ test('renders dislike icons filled red if current user has reacted (like - not f
     ];
 
     $response->assertStatus(200)
-        ->assertSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600')
-        ->assertDontSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600 text-green-600')
-        ->assertSee('js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600 text-red-600')
+        ->assertSee('js-reaction-btn cursor-pointer flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600')
+        ->assertDontSee('js-reaction-btn cursor-pointer flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600 text-green-600')
+        ->assertSee('js-reaction-btn cursor-pointer flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600 text-red-600')
         ->assertSeeInOrder($commentLikeDislikeArray, false);
 });
 

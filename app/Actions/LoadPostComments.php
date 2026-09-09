@@ -33,7 +33,7 @@ class LoadPostComments
                 }
             ])
             ->orderBy('created_at', 'desc')
-            ->paginate(5)
+            ->paginate()
             ->fragment('comments_section_start'); // THIS LINE ADDS AN ANCHOR TO THE LINKS
 
         return [

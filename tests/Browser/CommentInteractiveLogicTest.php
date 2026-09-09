@@ -36,7 +36,7 @@ test('reply to post comment', function () {
         ->assertMissing('[data-test="cancel-reply-edit-btn"].hidden')
         ->assertSee($commentAuthor->name)
         ->assertSeeIn('[data-test="btn-reply-comment-'.$comment->id.'"]', 'Reply')
-        ->assertSee($comment->body)
+        ->assertSee($comment->display_body)
         // Reply to comment - checking focus on textarea, indicator and author name, reply button, cancel button
         ->click('@btn-reply-comment-' . $comment->id)
         ->assertScript('document.activeElement.matches("textarea#form_body")', true)
@@ -103,11 +103,11 @@ test('user editing his own post comment', function () {
         ->assertMissing('[data-test="cancel-reply-edit-btn"].hidden')
         ->assertSee($commentAuthor->name)
         ->assertSeeIn('[data-test="btn-edit-comment-'.$comment->id.'"]', 'Edit')
-        ->assertSee($comment->body)
+        ->assertSee($comment->display_body)
         // Edit comment - checking focus on textarea, textarea filled by comment body, Save changes button, cancel button
         ->click('@btn-edit-comment-' . $comment->id)
         ->assertScript('document.activeElement.matches("textarea#form_body")', true)
-        ->assertScript('document.querySelector("textarea#form_body").value', $comment->body)
+        ->assertScript('document.querySelector("textarea#form_body").value', $comment->display_body)
         ->assertSeeIn('[data-test="comment-base-edit-indicator"]', 'Edit your comment')
         ->assertSeeIn('[data-test="submit-comment-btn"]', 'Save changes')
         ->assertSeeIn('[data-test="cancel-reply-edit-btn"]', 'Cancel')
@@ -194,7 +194,7 @@ test('show/hide admin action window and toggles custom reason input', function (
         ->select('@delete-reason-select', 'spam')
         ->click('@soft-delete-submit-btn')
         // after submit soft deleting check that comment body changed to The message was deleted by the moderator. Reason:
-        ->assertDontSee($comment->body)
+        ->assertDontSee($comment->display_body)
         ->assertSee('The message was deleted by the moderator. Reason: Spam / Advertising')
         // click admin actions button again - show admin actions window with restore and complete delete buttons
         ->click('@admin-actions-trigger-btn-' . $comment->id)
@@ -203,7 +203,7 @@ test('show/hide admin action window and toggles custom reason input', function (
         // click restore button - after restore check that comment body returned
         ->click('@restore-comment-' . $comment->id . '-btn')
         ->assertDontSee('The message was deleted by the moderator. Reason:')
-        ->assertSee($comment->body)
+        ->assertSee($comment->display_body)
         // soft delete again
         ->click('@admin-actions-trigger-btn-' . $comment->id)
         ->select('@delete-reason-select', 'spam')
@@ -214,7 +214,7 @@ test('show/hide admin action window and toggles custom reason input', function (
         ->click('@delete-comment-' . $comment->id . '-btn')
         ->assertScript('(() => { window.confirm = () => true; return true; })()', true)
         ->click('@delete-comment-' . $comment->id . '-btn')
-        ->assertDontSee($comment->body)
+        ->assertDontSee($comment->display_body)
         ->assertDontSee('The message was deleted by the moderator. Reason:')
         ->assertSee('No comments yet')
     ;

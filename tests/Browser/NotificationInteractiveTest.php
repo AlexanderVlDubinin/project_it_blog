@@ -63,7 +63,7 @@ test('notification (comment answer): clicking Mark as read & Open button makes n
         ->assertRoute('posts.show', ['post' => $post])
         ->assertPathIs('/posts/' . $post->id)
         ->assertSee($post->title)
-        ->assertSee($comment->body)
+        ->assertSee($comment->display_body)
         ->click('button.notifications-button-icon')
         ->assertMissing('@badge-notifications-number')
         ->assertPresent('h3.notification-title-'.$notification->id.'.text-blue-700.saturate-40')

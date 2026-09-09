@@ -62,6 +62,12 @@ class UserPolicy
         return $user->role === UserRole::MODERATOR;
     }
 
+    public function deleteAny(User $user): bool
+    {
+        // only admin can delete users
+        return $user->role === UserRole::ADMIN;
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

@@ -15,7 +15,7 @@
             </div>
 
             <div class="mt-2 flex items-center justify-between w-auto">
-                @if(!$comment->is_deleted && $comment->user_id !== auth()->id())
+                @if(!$comment->is_deleted /*&& $comment->user_id !== auth()->id()*/)
                 <!-- Reaction block -->
                 <div class="mr-4 reaction-block comment-reaction-block flex items-center gap-4 border border-border border-gray-700 dark:border-gray-300 bg-white dark:bg-gray-800 rounded-lg px-2 py-1 text-gray-500 text-sm select-none" data-type="comment" data-id="{{ $comment->id }}">
                     @php
@@ -23,12 +23,14 @@
                         $dislikes = $comment->dislikes_count ?? 0;
                         $rating = $likes - $dislikes;
 
+                        $isCommenter = $comment->user_id === auth()->id();
+
                         $hasLiked = $comment->userReaction?->is_like === true;
                         $hasDisliked = $comment->userReaction?->is_like === false;
                     @endphp
                     <!-- Like button -->
                     <button type="button"
-                            class="js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600 {{ $hasLiked ? 'text-green-600' : '' }}"
+                            class="{{ $isCommenter ? '' : 'js-reaction-btn cursor-pointer' }} flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-green-600 {{ $hasLiked ? 'text-green-600' : '' }}"
                             data-is-like="1">
                         <!-- Contour thumbs up -->
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="js-icon-outline {{ $hasLiked ? 'hidden' : '' }}">
@@ -48,7 +50,7 @@
 
                     <!-- Dislike button -->
                     <button type="button"
-                            class="js-reaction-btn flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600 {{ $hasDisliked ? 'text-red-600' : '' }}"
+                            class="{{ $isCommenter ? '' : 'js-reaction-btn cursor-pointer' }} flex items-center gap-1.5 font-medium transition-colors duration-150 hover:text-red-600 {{ $hasDisliked ? 'text-red-600' : '' }}"
                             data-is-like="0">
                         <span class="js-dislikes-count">{{ $comment->dislikes_count ?? 0 }}</span>
                         <!-- Contour thumbs down -->
@@ -119,7 +121,7 @@
     <!-- Automatically outputs a stub with the reason if is_deleted = true -->
     <div class="comment-body mt-4">
         <p class="{{ $comment->is_deleted ? 'text-gray-600 dark:text-gray-400' : '' }}">
-            {{ $comment->body }}
+            {{ $comment->display_body }}
         </p>
     </div>
 

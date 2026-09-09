@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Posts\RelationManagers;
 
+use App\Enum\UserRole;
+use App\Models\User;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -82,9 +84,31 @@ class CommentsRelationManager extends RelationManager
 
                         // the author of the comment
                         Select::make('user_id')
-                            ->relationship('user', 'name')
+                            //->relationship('user', 'name')
+                            ->relationship(
+                                name: 'user',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: function (Builder $query) { // moderator cannot select an administrator as an author
+                                    // If the form was opened by a moderator, remove all admins from the drop-down list
+                                    if (auth()->user()?->role === UserRole::MODERATOR) {
+                                        $query->where('role', '!=', UserRole::ADMIN);
+                                    }
+                                }
+                            )
+                            ->rules([ // Additional protection in case of substitution of the ID in the request
+                                fn () => function (string $attribute, $value, \Closure $fail) {
+                                    if (auth()->user()?->role === UserRole::MODERATOR && $value) {
+                                        $chosenUser = User::query()->find($value);
+                                        if ($chosenUser && $chosenUser->role === UserRole::ADMIN) {
+                                            $fail('You cannot select an administrator as an author');
+                                        }
+                                    }
+                                },
+                            ])
                             ->label('Author')
                             ->nullable() // Allows NULL to be written to the database
+                            ->preload() // preload users (first 50) for faster loading
+                            ->searchable(['name', 'email']) // Search by name or email in selector
                             ->placeholder('Anonymous (Leave it blank)'), // Hint in the drop-down list
 
                         // the deletion status of the comment
@@ -195,7 +219,7 @@ class CommentsRelationManager extends RelationManager
             ->toolbarActions([
                 BulkActionGroup::make([
                     //DissociateBulkAction::make(),
-                    DeleteBulkAction::make(), // Delete selected comments
+                    DeleteBulkAction::make()->authorizeIndividualRecords(), // Delete selected comments
                 ]),
             ]);
     }

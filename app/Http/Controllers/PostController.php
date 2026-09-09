@@ -27,7 +27,7 @@ class PostController extends Controller
     {
         $this->authorize('viewAny', Post::class);
 
-        $results = $publishedPaginatedPosts($request->validated(), 6);
+        $results = $publishedPaginatedPosts($request->validated());
         $posts = $results['posts'];
         $authors = $results['authors'];
         $tags = $results['tags'];

@@ -70,17 +70,11 @@ class UsersTable
                     ]),
             ])
             ->recordActions([
-                EditAction::make()
-                    // disable edit action for moderator (cannot edit the admin)
-                    ->disabled(fn (User $record): bool =>
-                        auth()->user()->role === UserRole::MODERATOR && $record->role === UserRole::ADMIN
-                    ),
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        // bulk delete is visible only for admin
-                        ->visible(fn (): bool => auth()->user()->role === UserRole::ADMIN),
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -8,6 +8,7 @@ use App\Actions\MarkNotificationsAsRead;
 use App\Actions\UpdateNotificationSettings;
 use App\Http\Requests\NotificationsFiltersRequest;
 use App\Http\Requests\UpdateNotificationSettingsRequest;
+use App\Models\Comment;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -50,7 +51,8 @@ class NotificationController extends Controller
         // Smart redirect depending on the type of data
         // If this is a response to a comment, send it to a post with an anchor to the comment.
         if (isset($data['type']) && $data['type'] === 'comment_reply') {
-            return redirect('/posts/' . $data['post_id'] . '#comment-' . $data['comment_id']);
+            $comment = Comment::query()->find($data['comment_id']);
+            return redirect($comment->pageUrl);
         }
 
         // If this is a general admin notification or a default redirect

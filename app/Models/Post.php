@@ -17,6 +17,8 @@ class Post extends Model
     /** @use HasFactory<PostFactory> */
     use HasFactory, SoftDeletes, HasReactions;
 
+    protected $perPage = 6; // Redefining the standard perPage property
+
     protected $casts = [
         'is_published' => 'boolean',
     ];
