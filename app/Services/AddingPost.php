@@ -168,7 +168,7 @@ readonly class AddingPost
 
         // 9. Add news to database OR dry run
         if (!$dryRun) {
-            $saveDBResult = $this->saveNewsToDatabase($logChannel, $news, $userId, $addTags);
+            $saveDBResult = $this->saveNewsToDatabase($logChannel, $news, $userId, $addTags, $url);
         } else {
             $saveDBResult = ['status' => 'success', 'message' => 'A dry run has been made'];
         }
@@ -182,7 +182,7 @@ readonly class AddingPost
     /**
      * Save news to database
      */
-    private function saveNewsToDatabase(string $logChannel, array $news, int $userId, bool $addTags): array
+    private function saveNewsToDatabase(string $logChannel, array $news, int $userId, bool $addTags, string $url): array
     {
         // 1. Check if news array is empty
         if (!empty($news)) {
@@ -216,6 +216,7 @@ readonly class AddingPost
 
                 $new['user_id'] = $userId ? $randomIds[0] : $randomIds[$key]; // Get author ID
                 $new['is_published'] = true;
+                $new['source_type'] = $url;
 
                 $post = Post::query()->create($new); // Create post from new
 

@@ -176,8 +176,20 @@
                                     @endcan
                                 </div>
 
+                                <!-- Imported from -->
+                                @php
+                                    $isImported = $post->source_type != 'user';
+                                @endphp
+                                @if($isImported)
+                                    <div class="flex items-center justify-between w-full text-indigo-800 dark:text-indigo-200 mt-2">
+                                        <i>
+                                            <b class="text-indigo-400 dark:text-indigo-600">Imported from: </b>
+                                            {{ $post->source_type }}
+                                        </i>
+                                    </div>
+                                @endif
                                 <!-- Authored by -->
-                                <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400 mt-2">
+                                <div class="flex items-center justify-between w-full text-gray-600 dark:text-gray-400 {{ $isImported ? '' : 'mt-2' }}">
                                     <i>
                                         <b>Authored by: </b>
                                         {{ $post->user->name }} ({{ $post->user->email }})

@@ -28,7 +28,17 @@
             <div class="mt-2 flex items-center justify-between w-auto">
                 <div>
                     <!-- Post author -->
-                    <div class="mt-4 w-full gap-4 text-gray-600 dark:text-gray-400">
+                    @php
+                        $isImported = $post->source_type != 'user';
+                    @endphp
+                    @if($isImported)
+                    <div class="mt-4 w-full gap-4 text-indigo-800 dark:text-indigo-200">
+                        <b class="text-indigo-400 dark:text-indigo-600">Imported from: </b>
+                        <i>{{ $post->source_type }}</i>
+                    </div>
+                    @endif
+                    <!-- Post author -->
+                    <div class="{{ $isImported ? '' : 'mt-4' }} w-full gap-4 text-gray-600 dark:text-gray-400">
                         <b>Authored by: </b>
                         <i>{{ $post->user->name }} ({{ $post->user->email }})</i>
                     </div>
