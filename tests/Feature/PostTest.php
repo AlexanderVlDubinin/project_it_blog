@@ -528,5 +528,23 @@ test('user can not see posts like part if it is not published', function () {
         ->assertSee($post->title);
 });
 
+test('author can not see posts like part on his own posts', function () {
+    $author = User::factory()->create([
+        'role' => UserRole::AUTHOR
+    ]);
+    $post = Post::factory()->withoutImage()->create([
+        'is_published' => true,
+        'user_id' => $author->id,
+    ]);
+    $this->actingAs($author);
+
+    $response = $this->get(route('posts.index'));
+
+    $response->assertStatus(200)
+        ->assertSee($author->name)
+        ->assertDontSee('post-reaction-block')
+        ->assertSee($post->title);
+});
+
 
 

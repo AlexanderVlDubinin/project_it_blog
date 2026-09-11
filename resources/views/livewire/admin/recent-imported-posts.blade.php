@@ -27,7 +27,7 @@
                     </thead>
                     <tbody>
                     @forelse($recentImportedPosts as $index => $post)
-                        <tr class="border-b border-t border-gray-600 /*hover:bg-gray-700*/">
+                        <tr class="border-b border-t border-gray-600 /*hover:bg-gray-700*/ recent-imported-posts-tr">
                             <td class="px-4 py-3 align-middle whitespace-nowrap">
                                 <div class="flex flex-col justify-center">
                                     <div class="text-sm text-gray-900 dark:text-white">{{ $index + 1 }}</div>
@@ -84,7 +84,6 @@
                                             <span class="sr-only">Yes</span>
                                         @else
                                             <svg class="h-6 w-6 shrink-0 text-red-600 dark:text-red-500"
-                                                 xmlns="http://w3.org"
                                                  fill="none"
                                                  viewBox="0 0 24 24"
                                                  stroke-width="1.5"
@@ -119,7 +118,7 @@
                             <td class="px-4 py-3 align-middle text-center whitespace-nowrap">
                                 <div class="flex flex-col justify-center">
                                     <div class="text-sm text-gray-900 dark:text-white">
-                                        <a href="{{ \App\Filament\Resources\Posts\PostResource::getUrl('edit', ['record' => $post]) }}" target="_blank"
+                                        <a href="{{ \App\Filament\Resources\Posts\PostResource::getUrl('edit', ['record' => $post]) }}" data-test="recent-imported-posts-moderate-post-{{ $post->id }}-btn" target="_blank"
                                            class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border border-border border-blue-400 text-blue-700 bg-blue-50 hover:bg-blue-200 transition">
                                             Moderate
                                         </a>
@@ -148,6 +147,7 @@
                         wire:click="loadMore"
                         wire:loading.attr="disabled"
                         class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md text-sm disabled:opacity-50"
+                        data-test="recent-imported-posts-show-more-btn"
                     >
                         <span wire:loading.remove wire:target="loadMore">Show more</span>
                         <span wire:loading wire:target="loadMore">Loading...</span>

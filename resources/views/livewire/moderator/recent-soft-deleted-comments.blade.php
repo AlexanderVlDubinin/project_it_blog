@@ -30,7 +30,7 @@
                     </thead>
                     <tbody>
                     @forelse($recentSoftDeletedComments as $index => $comment)
-                        <tr class="border-b border-t border-gray-600 /*hover:bg-gray-700*/">
+                        <tr class="border-b border-t border-gray-600 /*hover:bg-gray-700*/ recent-soft-deleted-comments-tr">
                             <td class="px-4 py-3 align-middle whitespace-nowrap">
                                 <div class="flex flex-col justify-center">
                                     <div class="text-sm text-gray-900 dark:text-white">{{ $index + 1 }}</div>
@@ -122,7 +122,8 @@
                             <td class="px-4 py-3 align-middle text-center whitespace-nowrap">
                                 <div class="flex flex-col justify-center">
                                     <div class="text-sm text-gray-900 dark:text-white">
-                                        <a href="{{ $isPostDeleted ? \App\Filament\Resources\Posts\PostResource::getUrl('edit', ['record' => $comment->post]) : $comment->page_url }}" target="_blank"
+                                        <a href="{{ $isPostDeleted ? \App\Filament\Resources\Posts\PostResource::getUrl('edit', ['record' => $comment->post]) : $comment->page_url }}"
+                                           data-test="{{ $isPostDeleted ? 'recent-soft-deleted-comments-moderate-post-' . $comment->id . '-btn' : 'recent-soft-deleted-comments-open-post-' . $comment->id . '-btn' }}"  target="_blank"
                                            class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border border-border border-blue-400 text-blue-700 bg-blue-50 hover:bg-blue-200 transition">
                                             {{ $isPostDeleted ? 'Moderate' : 'Open' }}
                                         </a>

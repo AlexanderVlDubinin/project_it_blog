@@ -9,14 +9,19 @@ use App\Models\Post;
 
 class DashboardController extends Controller
 {
+    /**
+     * Display a listing of the dashboard page.
+     */
     public function index()
     {
         $user = auth()->user();
         $dashboardViewArray = [];
 
+        // User or Author dashboard (Admin and Moderator are implemented via Livewire)
         if ( in_array($user->role, [UserRole::USER, UserRole::AUTHOR]) ) {
             $totalComments = Comment::query()->where('user_id', $user->id)->count();
 
+            // likes for posts; likes and dislikes for comments
             $likeStats = Like::query()
                 ->where('user_id', $user->id)
                 ->selectRaw("
@@ -26,6 +31,7 @@ class DashboardController extends Controller
             ", [Post::class, Comment::class, Comment::class])
                 ->first();
 
+            // top 5 posts by likes
             $topPosts = Post::query()
                 ->where('user_id', '!=', $user->id)
                 ->where('is_published', true)
@@ -39,8 +45,9 @@ class DashboardController extends Controller
             $postLikes = $likeStats->post_likes ?? 0;
             $commentLikes = $likeStats->comment_likes ?? 0;
             $commentDislikes = $likeStats->comment_dislikes ?? 0;
-            $totalRating = $commentLikes - $commentDislikes;
+            $totalRating = $commentLikes - $commentDislikes; // net rating of comments
 
+            // dashboard view array
             $dashboardViewArray = [
                 'commentsCount' => $totalComments,
                 'postLikesCount' => $postLikes,
@@ -50,7 +57,8 @@ class DashboardController extends Controller
                 'topPosts' => $topPosts
             ];
 
-            if ($user->role == UserRole::AUTHOR) {
+            if ($user->role == UserRole::AUTHOR) { // addition to the author's control panel
+                // posts that were created by the author
                 $myPosts = Post::query()
                     ->where('user_id', $user->id)
                     ->withCount(['reactions as likes_count' => function ($query) {

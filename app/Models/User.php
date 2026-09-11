@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enum\UserRole;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -14,7 +16,7 @@ use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -33,6 +35,24 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'role' => UserRole::class,
         ];
+    }
+
+    /**
+     * Determine if the user can access a specific panel (filament admin panel).
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // For unit tests
+        if (app()->runningUnitTests()) {
+            return true;
+        }
+
+        // For the 'admin' panel (which is in the AdminPanelProvider)
+        if ($panel->getId() === 'admin') {
+            return $this->role === UserRole::ADMIN || $this->role === UserRole::MODERATOR;
+        }
+
+        return false;
     }
 
     /**

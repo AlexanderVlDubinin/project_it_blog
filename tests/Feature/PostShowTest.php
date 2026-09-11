@@ -227,6 +227,26 @@ test('user can not see single post like part if it is not published', function (
         ->assertSee($post->title);
 });
 
+test('author can not see single post like part on his own post', function () {
+    $author = User::factory()->create([
+        'role' => UserRole::AUTHOR
+    ]);
+    $post = Post::factory()->withoutImage()->create([
+        'is_published' => true,
+        'user_id' => $author->id,
+    ]);
+    $this->actingAs($author);
+
+    $response = $this->get(route('posts.show', $post));
+
+    $response->assertStatus(200)
+        ->assertViewIs('posts.show')
+        ->assertViewHas('post')
+        ->assertSee($author->name)
+        ->assertDontSee('post-reaction-block')
+        ->assertSee($post->title);
+});
+
 test('authenticated user can see comment form', function () {
     $this->actingAs(User::factory()->create());
     $author = User::factory()->create([
@@ -978,6 +998,29 @@ test('user can not see comment like part if comment is soft deleted', function (
     $response->assertStatus(200)
         ->assertSee($post->title)
         ->assertDontSee('comment-reaction-block');
+});
+
+test('commenter can not like or dislike his own comment', function () {
+    $user = User::factory()->create();
+    $author = User::factory()->create([
+        'role' => UserRole::AUTHOR
+    ]);
+    $post = Post::factory()->create([
+        'is_published' => true,
+        'user_id' => $author->id,
+    ]);
+    $comment = Comment::factory()->create([
+        'post_id' => $post->id,
+        'user_id' => $user->id,
+        'is_deleted' => false,
+    ]);
+    $this->actingAs($user);
+
+    $response = $this->get(route('posts.show', $post));
+
+    $response->assertStatus(200)
+        ->assertSee($post->title)
+        ->assertDontSee('class="js-reaction-btn');
 });
 
 test('authenticated user can like a comment when no reaction exists', function () {

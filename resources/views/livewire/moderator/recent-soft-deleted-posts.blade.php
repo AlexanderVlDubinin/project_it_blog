@@ -26,7 +26,7 @@
                     </thead>
                     <tbody>
                     @forelse($recentSoftDeletedPosts as $index => $post)
-                        <tr class="border-b border-t border-gray-600 /*hover:bg-gray-700*/">
+                        <tr class="border-b border-t border-gray-600 /*hover:bg-gray-700*/ recent-soft-deleted-posts-tr">
                             <td class="px-4 py-3 align-middle whitespace-nowrap">
                                 <div class="flex flex-col justify-center">
                                     <div class="text-sm text-gray-900 dark:text-white">{{ $index + 1 }}</div>
@@ -83,7 +83,6 @@
                                             <span class="sr-only">Yes</span>
                                         @else
                                             <svg class="h-6 w-6 shrink-0 text-red-600 dark:text-red-500"
-                                                 xmlns="http://w3.org"
                                                  fill="none"
                                                  viewBox="0 0 24 24"
                                                  stroke-width="1.5"
@@ -113,7 +112,7 @@
                             <td class="px-4 py-3 align-middle text-center whitespace-nowrap">
                                 <div class="flex flex-col justify-center">
                                     <div class="text-sm text-gray-900 dark:text-white">
-                                        <a href="{{ \App\Filament\Resources\Posts\PostResource::getUrl('edit', ['record' => $post]) }}" target="_blank"
+                                        <a href="{{ \App\Filament\Resources\Posts\PostResource::getUrl('edit', ['record' => $post]) }}" data-test="recent-soft-deleted-posts-moderate-post-{{ $post->id }}-btn" target="_blank"
                                            class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border border-border border-blue-400 text-blue-700 bg-blue-50 hover:bg-blue-200 transition">
                                             Moderate
                                         </a>

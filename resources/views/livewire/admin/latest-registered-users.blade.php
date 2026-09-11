@@ -24,7 +24,7 @@
                     </thead>
                     <tbody>
                     @forelse($latestRegisteredUsers as $index => $user)
-                        <tr class="border-b border-t border-gray-600 /*hover:bg-gray-700*/">
+                        <tr class="border-b border-t border-gray-600 /*hover:bg-gray-700*/ latest-registered-users-tr">
                             <td class="px-4 py-3 align-middle whitespace-nowrap">
                                 <div class="flex flex-col justify-center">
                                     <div class="text-sm text-gray-900 dark:text-white">{{ $index + 1 }}</div>
@@ -68,7 +68,7 @@
                             <td class="px-4 py-3 align-middle text-center whitespace-nowrap">
                                 <div class="flex flex-col justify-center">
                                     <div class="text-sm text-gray-900 dark:text-white">
-                                        <a href="{{ \App\Filament\Resources\Users\UserResource::getUrl('edit', ['record' => $user]) }}" target="_blank"
+                                        <a href="{{ \App\Filament\Resources\Users\UserResource::getUrl('edit', ['record' => $user]) }}" data-test="latest-registered-users-moderate-user-{{ $user->id }}-btn" target="_blank"
                                            class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border border-border border-blue-400 text-blue-700 bg-blue-50 hover:bg-blue-200 transition">
                                             Moderate
                                         </a>
@@ -97,6 +97,7 @@
                         wire:click="loadMore"
                         wire:loading.attr="disabled"
                         class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md text-sm disabled:opacity-50"
+                        data-test="latest-registered-users-show-more-btn"
                     >
                         <span wire:loading.remove wire:target="loadMore">Show more</span>
                         <span wire:loading wire:target="loadMore">Loading...</span>

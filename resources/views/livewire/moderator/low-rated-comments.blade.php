@@ -26,7 +26,7 @@
                     </thead>
                     <tbody>
                     @forelse($lowRatedComments as $index => $comment)
-                        <tr class="border-b border-t border-gray-600 /*hover:bg-gray-700*/">
+                        <tr class="border-b border-t border-gray-600 /*hover:bg-gray-700*/ low-rated-comments-tr">
                             <td class="w-1/100 px-4 py-3 align-middle whitespace-nowrap">
                                 <div class="flex flex-col justify-center">
                                     <div class="text-sm text-gray-900 dark:text-white">{{ $index + 1 }}</div>
@@ -75,7 +75,8 @@
                             <td class="px-4 py-3 align-middle text-center whitespace-nowrap">
                                 <div class="flex flex-col justify-center">
                                     <div class="text-sm text-gray-900 dark:text-white">
-                                        <a href="{{ $isPostDeleted ? \App\Filament\Resources\Posts\PostResource::getUrl('edit', ['record' => $comment->post]) : $comment->page_url }}" target="_blank"
+                                        <a href="{{ $isPostDeleted ? \App\Filament\Resources\Posts\PostResource::getUrl('edit', ['record' => $comment->post]) : $comment->page_url }}"
+                                           data-test="low-rated-comments-moderate-post-{{ $comment->id }}-btn" target="_blank"
                                            class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border border-border border-blue-400 text-blue-700 bg-blue-50 hover:bg-blue-200 transition">
                                             {{ $isPostDeleted ? 'Moderate' : 'Open' }}
                                         </a>
@@ -85,7 +86,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="border border-gray-300 px-4 py-4 text-center text-gray-500">
+                            <td colspan="6" class="border-b border-t border-gray-600 px-4 py-4 text-center text-gray-500 w-full">
                                 There are no low-rated comments at the moment.
                             </td>
                         </tr>
