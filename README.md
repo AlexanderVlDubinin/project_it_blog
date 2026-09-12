@@ -58,7 +58,7 @@ A modern and functional blog with tree-like comments, advanced filtering, a flex
 
 The application implements a single dynamic Dashboard based on **Livewire v4.4.4** components. The page content is fully adapted to one of the **4 user roles**, providing each with a unique operational hub.
 
-All interactive tables are equipped with reactive AJAX pagination **"Show more"** (Show more), displays a counter for the total number of records and hides the button when the data is fully loaded.
+All interactive tables are equipped with reactive AJAX pagination **"Show more"**, displays a counter for the total number of records and hides the button when the data is fully loaded.
 
 ### 👤 Role: User (Regular reader)
 * **Personal activity statistics:** Card with automatic calculation:
