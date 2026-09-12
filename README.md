@@ -70,7 +70,7 @@ All interactive tables are equipped with reactive AJAX pagination **"Show more"*
 
 ### ✍️ Role: Author (Content Author)
 * Includes **all the features of the User role**.
-* **"My posts" section:** A personal table displaying exclusively the articles of this author. Allows you to see both published and hidden (drafts) posts with the ability to quickly switch to editing them.
+* **"My posts" section:** A personal table displaying exclusively the articles of this author. Allows to see both published and hidden (drafts) posts with the ability to quickly switch to editing them.
 
 ### 🛡 Role: Moderator (Operational Moderation Center)
 * **Queue of hidden posts:** A table with all posts in the `soft deleted` status. For each element, a quick access button is displayed to the Filament admin panel for final moderation.
