@@ -74,7 +74,7 @@ All interactive tables are equipped with reactive AJAX pagination **"Show more"*
 
 ### 🛡 Role: Moderator (Operational Moderation Center)
 * **Queue of hidden posts:** A table with all posts in the `soft deleted` status. For each element, a quick access button is displayed to the Filament admin panel for final moderation.
-* **Queue of hidden comments:** The table of comments located in the `soft delete'. It is equipped with buttons to go to the public page of the post to a specific place (anchor) of the comment. If the comment post has the status of `soft deleted`, then the button leads to the post's Filament admin panel for final moderation.
+* **Queue of hidden comments:** The table of comments located in the `soft delete`. It is equipped with buttons to go to the public page of the post to a specific place (anchor) of the comment. If the comment post has the status of `soft deleted`, then the button leads to the post's Filament admin panel for final moderation.
 *   **Potentially toxic content:** A list of the lowest-rated comments on the site (which have gone into deep dislike) for rapid response and cleaning blogs from spam /toxicity.
 
 ### 👑 Role: Admin (Strategic Control Center)
