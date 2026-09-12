@@ -16,6 +16,7 @@ A modern and functional blog with tree-like comments, advanced filtering, a flex
 
 ### Backend & Frontend
 *   **Framework:** Laravel `v13.21.1`
+*   **Fullstack Engine:** Livewire `v4.4.4` (used for dynamic tables and "Show more" pagination)
 *   **Authentication:** Laravel Breeze `v2.4.2`
 *   **Admin Panel:** Filament PHP `v5.7.3`
 *   **Testing:** `Pest v4.7.5` + `pest-plugin-browser v4.3.1` (Playwright & Chromium)
@@ -30,7 +31,7 @@ A modern and functional blog with tree-like comments, advanced filtering, a flex
 *   **Tree-like comments:** Endless nesting of responses (cascading structure), comment pagination. Authors can edit their comments. Support for Soft/Hard delete.
 *   **Rating system (Likes):** 
     *   For posts: likes only (`+1`).
-    *   For comments: likes and dislikes with the calculation of the total live rating (total rating = `Likes` minus `Dislikes').
+    *   For comments: likes and dislikes with the calculation of the total live rating (total rating = `Likes` minus `Dislikes`).
 *   **Smart Notifications (Database & Mail):** 
     *   They are triggered when responding to a comment or are sent manually from the admin panel.
     *   Filtering by type.
@@ -50,6 +51,35 @@ A modern and functional blog with tree-like comments, advanced filtering, a flex
     *   Channels: Email, Database (or both).
     *   Targeting: A specific user, a group by role, or mass sending to everyone.
     *   Dynamic icon selection from the `Heroicons` pack.
+
+---
+
+## 📊 Public Dashboard (`/dashboard`)
+
+The application implements a single dynamic Dashboard based on **Livewire v4.4.4** components. The page content is fully adapted to one of the **4 user roles**, providing each with a unique operational hub.
+
+All interactive tables are equipped with reactive AJAX pagination **"Show more"** (Show more), displays a counter for the total number of records and hides the button when the data is fully loaded.
+
+### 👤 Role: User (Regular reader)
+* **Personal activity statistics:** Card with automatic calculation:
+* Number of liked posts.
+    * The total number of comments left.
+    * The number of liked and disliked comments.
+    * **The overall rating of user comments** (live balance: `Likes - Dislikes').
+* **Recommendation system:** A table of еру **5 most popular posts** in the system (sorted strictly by the highest number of likes).
+
+### ✍️ Role: Author (Content Author)
+* Includes **all the features of the User role**.
+* **"My posts" section:** A personal table displaying exclusively the articles of this author. Allows you to see both published and hidden (drafts) posts with the ability to quickly switch to editing them.
+
+### 🛡 Role: Moderator (Operational Moderation Center)
+* **Queue of hidden posts:** A table with all posts in the `soft deleted` status. For each element, a quick access button is displayed to the Filament admin panel for final moderation.
+* **Queue of hidden comments:** The table of comments located in the `soft delete'. It is equipped with buttons to go to the public page of the post to a specific place (anchor) of the comment. If the comment post has the status of `soft deleted`, then the button leads to the post's Filament admin panel for final moderation.
+*   **Potentially toxic content:** A list of the lowest-rated comments on the site (which have gone into deep dislike) for rapid response and cleaning blogs from spam /toxicity.
+
+### 👑 Role: Admin (Strategic Control Center)
+* **Registration control:** A table of the last registered users in the system with the possibility of instant access to their cards inside the Filament.
+* **Content Import monitoring:** An interactive list of posts that were automatically parsed and simulated by the console team from the *[TechCrunch](https://techcrunch.com )* website. Allows the administrator to visually assess the stability of the parser.
 
 ---
 
@@ -128,3 +158,4 @@ $env:PWDEBUG=0
 ## 📂 Architectural features of the assembly
 *   **Differentiation of rights:** The PHP container runs under the local user `laravel` with `UID:GID 1000:1000`, solving any `permission denied` problems on Linux hosts.
 *   **Data persistence:** The folders `pgdata` (PostgreSQL) and `redisdata` (Redis) are placed in named Docker Volumes — posts, likes and cache will not disappear when `docker compose down` is called.
+*   **Reactive UI (Livewire):** All interactive tables on the public Dashboard ("Show more" pagination, dynamic counting of the total number of entries) are implemented on Livewire components. This allows you to update data on the fly using AJAX requests without completely reloading the page and without writing cumbersome JS code.
