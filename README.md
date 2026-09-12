@@ -66,7 +66,7 @@ All interactive tables are equipped with reactive AJAX pagination **"Show more"*
     * The total number of comments left.
     * The number of liked and disliked comments.
     * **The overall rating of user comments** (live balance: `Likes - Dislikes`).
-* **Recommendation system:** A table of еру **5 most popular posts** in the system (sorted strictly by the highest number of likes).
+* **Recommendation system:** A table of the **5 most popular posts** in the system (sorted strictly by the highest number of likes).
 
 ### ✍️ Role: Author (Content Author)
 * Includes **all the features of the User role**.
