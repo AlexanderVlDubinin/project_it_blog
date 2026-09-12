@@ -17,7 +17,7 @@ class DashboardController extends Controller
         $user = auth()->user();
         $dashboardViewArray = [];
 
-        // User or Author dashboard (Admin and Moderator are implemented via Livewire)
+        // User or Author dashboard (Admin and Moderator are fully implemented via Livewire)
         if ( in_array($user->role, [UserRole::USER, UserRole::AUTHOR]) ) {
             $totalComments = Comment::query()->where('user_id', $user->id)->count();
 
@@ -56,19 +56,6 @@ class DashboardController extends Controller
                 'totalRating' => $totalRating,
                 'topPosts' => $topPosts
             ];
-
-            if ($user->role == UserRole::AUTHOR) { // addition to the author's control panel
-                // posts that were created by the author
-                $myPosts = Post::query()
-                    ->where('user_id', $user->id)
-                    ->withCount(['reactions as likes_count' => function ($query) {
-                        $query->where('is_like', true);
-                    }])
-                    ->orderByDesc('likes_count')
-                    ->get();
-
-                $dashboardViewArray['myPosts'] = $myPosts;
-            }
         }
 
         return view('dashboard', $dashboardViewArray);

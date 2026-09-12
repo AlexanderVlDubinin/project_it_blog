@@ -69,27 +69,26 @@
                                 <div class="flex flex-col items-center justify-center">
                                     <div class="flex items-center justify-center">
                                         @if($post->is_published)
-                                        <svg class="h-6 w-6 shrink-0 text-emerald-600 dark:text-emerald-500"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="none"
-                                             viewBox="0 0 24 24"
-                                             stroke-width="1.5"
-                                             stroke="currentColor"
-                                             aria-hidden="true">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
-                                        </svg>
-                                        <span class="sr-only">Yes</span>
+                                            <svg class="h-6 w-6 shrink-0 text-emerald-600 dark:text-emerald-500"
+                                                 xmlns="http://www.w3.org/2000/svg"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke-width="1.5"
+                                                 stroke="currentColor"
+                                                 aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+                                            </svg>
+                                            <span class="sr-only">Yes</span>
                                         @else
-                                        <svg class="h-6 w-6 shrink-0 text-red-600 dark:text-red-500"
-                                             xmlns="http://w3.org"
-                                             fill="none"
-                                             viewBox="0 0 24 24"
-                                             stroke-width="1.5"
-                                             stroke="currentColor"
-                                             aria-hidden="true">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
-                                        </svg>
-                                        <span class="sr-only">No</span>
+                                            <svg class="h-6 w-6 shrink-0 text-red-600 dark:text-red-500"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke-width="1.5"
+                                                 stroke="currentColor"
+                                                 aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+                                            </svg>
+                                            <span class="sr-only">No</span>
                                         @endif
                                     </div>
                                 </div>
@@ -112,6 +111,23 @@
                     </tbody>
                 </table>
             </div>
+
+            {{-- Show more Button --}}
+            @if($hasMore)
+                <div class="my-4 text-center">
+                    <span class="text-gray-500 dark:text-gray-400">
+                        Total: {{ $myPostsCount }}
+                    </span>
+                    <button
+                        wire:click="loadMore"
+                        wire:loading.attr="disabled"
+                        class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md text-sm disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="loadMore">Show more</span>
+                        <span wire:loading wire:target="loadMore">Loading...</span>
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
 </div>

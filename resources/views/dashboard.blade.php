@@ -11,7 +11,7 @@
     @elseif(auth()->user()->hasRole(App\Enum\UserRole::AUTHOR))
         @include('dashboard.partials.user-stats')
         @include('dashboard.partials.recommendations')
-        @include('dashboard.partials.my-posts')
+        <livewire:author.authors-own-posts />
     @elseif(auth()->user()->hasRole(App\Enum\UserRole::MODERATOR))
         <livewire:moderator.recent-deleted-posts />
         <livewire:moderator.recent-deleted-comments />
